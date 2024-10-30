@@ -51,14 +51,13 @@ include { methodsDescriptionText                      } from '../subworkflows/lo
 
 workflow HGTSEQ {
 
-    ch_input = Channel.empty()
-    csv_input = returnFile(params.input)
-    // split csv
-    ch_input = Channel.from(csv_input)
-        .splitCsv ( header:true, sep:',' )
-        .map { create_input_channel(it) }
+    take:
+    ch_input
+
+    main:
 
     ch_versions = Channel.empty()
+    ch_multiqc_files = Channel.empty()
 
     // check if databases are local or compressed archives
     krakendb = returnFile(params.krakendb)
@@ -189,10 +188,8 @@ workflow HGTSEQ {
     ch_methods_description                = Channel.value(
         methodsDescriptionText(ch_multiqc_custom_methods_description))
 
-    ch_multiqc_files = Channel.empty()
     ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
-    ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
     // adding reads QC for both trimmed and untrimmed
     if (!params.isbam) {
         ch_multiqc_files = ch_multiqc_files.mix(READS_QC.out.fastqc_untrimmed.collect{it[1]}.ifEmpty([]))
@@ -225,6 +222,34 @@ workflow HGTSEQ {
     versions       = ch_versions                 // channel: [ path(versions.yml) ]
 
 }
+
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    UTILITIES
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+// Useful functions kindly borrowed from Sarek
+
+// Check file extension
+def hasExtension(it, extension) {
+    it.toString().toLowerCase().endsWith(extension.toLowerCase())
+}
+
+// from string indicating path
+// returns extension WITH dot
+def getExtensionFromStringPath(it) {
+    return it.drop(it.lastIndexOf('.'))
+}
+
+// Return file if it exists
+def returnFile(it) {
+    if (!file(it).exists()) exit 1, "Input file does not exist: ${it}, see --help for more information"
+    return file(it)
+}
+
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
