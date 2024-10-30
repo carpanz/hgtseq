@@ -51,7 +51,7 @@ workflow NFCORE_HGTSEQ {
     // WORKFLOW: Run pipeline
     //
     HGTSEQ (
-        samplesheet
+        samplesheet,
     )
     emit:
     multiqc_report = HGTSEQ.out.multiqc_report // channel: /path/to/multiqc_report.html
@@ -81,7 +81,7 @@ workflow {
     // WORKFLOW: Run main workflow
     //
     NFCORE_HGTSEQ (
-        PIPELINE_INITIALISATION.out.samplesheet
+        PIPELINE_INITIALISATION.out.samplesheet,
     )
     //
     // SUBWORKFLOW: Run completion tasks
