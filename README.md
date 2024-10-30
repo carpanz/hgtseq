@@ -1,7 +1,7 @@
 <h1>
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/images/logo-hgtseq-ligth.png">
-    <img alt="nf-core/hgtseq" src="docs/images/nf-core-hgtseq_logo_light.png">
+    <img alt="nf-core/hgtseq" src="docs/images/logo-hgtseq-ligth.png">
   </picture>
 </h1>
 
