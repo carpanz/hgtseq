@@ -1,9 +1,4 @@
-<h1>
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/images/logo-hgtseq-ligth.png">
-    <img alt="nf-core/hgtseq" src="docs/images/logo-hgtseq-ligth.png">
-  </picture>
-</h1>
+# ![nf-core/hgtseq](docs/images/logo-hgtseq-ligth.png#gh-light-mode-only) ![nf-core/hgtseq](docs/images/logo-hgtseq-dark.png#gh-dark-mode-only)
 
 [![GitHub Actions CI Status](https://github.com/nf-core/hgtseq/actions/workflows/ci.yml/badge.svg)](https://github.com/nf-core/hgtseq/actions/workflows/ci.yml)
 [![GitHub Actions Linting Status](https://github.com/nf-core/hgtseq/actions/workflows/linting.yml/badge.svg)](https://github.com/nf-core/hgtseq/actions/workflows/linting.yml)[![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/hgtseq/results)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.7244734-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.7244734)
