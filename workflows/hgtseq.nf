@@ -1,22 +1,5 @@
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
-
-// Validate input parameters
-WorkflowHgtseq.initialise(params, log)
-
-def checkPathParamList = [ params.input, params.multiqc_config, params.fasta, params.krakendb, params.kronadb ]
-for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
-
-// Check mandatory parameters
-if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
-
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     CONFIG FILES
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
@@ -68,14 +51,13 @@ include { methodsDescriptionText                      } from '../subworkflows/lo
 
 workflow HGTSEQ {
 
-    ch_input = Channel.empty()
-    csv_input = returnFile(params.input)
-    // split csv
-    ch_input = Channel.from(csv_input)
-        .splitCsv ( header:true, sep:',' )
-        .map { create_input_channel(it) }
+    take:
+    ch_input
+
+    main:
 
     ch_versions = Channel.empty()
+    ch_multiqc_files = Channel.empty()
 
     // check if databases are local or compressed archives
     krakendb = returnFile(params.krakendb)
@@ -206,10 +188,8 @@ workflow HGTSEQ {
     ch_methods_description                = Channel.value(
         methodsDescriptionText(ch_multiqc_custom_methods_description))
 
-    ch_multiqc_files = Channel.empty()
     ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
-    ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
     // adding reads QC for both trimmed and untrimmed
     if (!params.isbam) {
         ch_multiqc_files = ch_multiqc_files.mix(READS_QC.out.fastqc_untrimmed.collect{it[1]}.ifEmpty([]))
@@ -243,6 +223,7 @@ workflow HGTSEQ {
 
 }
 
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     UTILITIES
@@ -268,58 +249,7 @@ def returnFile(it) {
     return file(it)
 }
 
-// Function to get list of [ meta, [ fastq_1, fastq_2 ] ]
-def create_input_channel(LinkedHashMap row) {
-    // named rows in CSV file expected to be:
-    // sample,group,input1 [optional: input2]
-    // input1 can be either .fastq.gz or .fastq or .bam
-    // input2 can only be .fastq.gz or .fastq
-    // create meta map
-    def meta = [:]
-    // check if mandatory sample column exists
-    if (row.sample){
-        meta.id         = row.sample
-    } else {
-        exit 1, "ERROR: Please check input samplesheet -> a column named sample with sample ID is mandatory!\n"
-    }
 
-    def input_meta = []
-
-    // check if mandatory input1 column exists
-    if (row.input1){
-        def file1 = returnFile(row.input1)
-        if (!file1.exists()) {
-            exit 1, "ERROR: Please check input samplesheet -> file indicated in input1 column does not exist!\n${row.input1}"
-        }
-        // check whether input1 is a fastq or bam
-        if (!hasExtension(file1, "fastq.gz") && !hasExtension(file1, "fastq") && !hasExtension(file1, "bam") && !hasExtension(file1, "cram")){
-            exit 1, "ERROR: input file in input1 column must be either a fastq or a bam/cram file!\n${row.input1}"
-        }
-    } else {
-        exit 1, "ERROR: Please check input samplesheet -> a column named input1 with either fastq or bam/cram input is mandatory!\n"
-    }
-    // single or paired end is set based on presence or absence of input2 column
-    if (row.input2){
-        def file1 = returnFile(row.input1)
-        def file2 = returnFile(row.input2)
-        if (!file2.exists()) {
-            exit 1, "ERROR: Please check input samplesheet -> file indicated in input2 column does not exist!\n${row.input2}"
-        }
-        if (getExtensionFromStringPath(row.input1) == ".bam" | getExtensionFromStringPath(row.input1) == ".cram"){
-            exit 1, "ERROR: when providing BAM or CRAM input in column input1, column input2 should not exist"
-        }
-        if (!(getExtensionFromStringPath(row.input1) == getExtensionFromStringPath(row.input2))){
-            exit 1, "ERROR: when providing paired end fastq files, both input should have the same extension\n${row.input1}\n${row.input2}"
-        }
-        meta.single_end = false
-        input_meta = [ meta, [ file1, file2 ] ]
-    } else {
-        meta.single_end = true
-        def file1 = returnFile(row.input1)
-        input_meta = [ meta, [ file1 ] ]
-    }
-    return input_meta
-}
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
