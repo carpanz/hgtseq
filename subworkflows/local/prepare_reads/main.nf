@@ -19,10 +19,10 @@ workflow PREPARE_READS {
     aligner    // string:  [mandatory] "bwa-mem" or "bwa-mem2"
 
     main:
-    ch_versions = Channel.empty()
-    aligned_bam = Channel.empty()
+    ch_versions = channel.empty()
+    aligned_bam = channel.empty()
 
-    fasta_meta = Channel.value(file(fasta)).map{ it -> [[id:it[0].baseName], it] }
+    fasta_meta = channel.value(file(fasta)).map{ it -> [[id:it[0].baseName], it] }
 
     TRIMGALORE ( reads )
     ch_versions = ch_versions.mix(TRIMGALORE.out.versions)
