@@ -18,21 +18,21 @@ workflow BAM_QC {
     gff        // channel: [optional] path(gff)
 
     main:
-    ch_versions = Channel.empty()
+    ch_versions = channel.empty()
 
     SAMTOOLS_STATS ( bam_bai, [[],[]] )
-    ch_versions = ch_versions.mix(SAMTOOLS_STATS.out.versions.first())
+    ch_versions = ch_versions.mix(SAMTOOLS_STATS.out.versions_samtools)
 
     SAMTOOLS_FLAGSTAT ( bam_bai )
-    ch_versions = ch_versions.mix(SAMTOOLS_FLAGSTAT.out.versions.first())
+    ch_versions = ch_versions.mix(SAMTOOLS_FLAGSTAT.out.versions_samtools)
 
     SAMTOOLS_IDXSTATS ( bam_bai )
-    ch_versions = ch_versions.mix(SAMTOOLS_IDXSTATS.out.versions.first())
+    ch_versions = ch_versions.mix(SAMTOOLS_IDXSTATS.out.versions_samtools)
 
     // qualimap requires the original bam file
     // but also a GFF file with the regions to run the QC on
     QUALIMAP_BAMQC ( bam, gff )
-    ch_versions = ch_versions.mix(QUALIMAP_BAMQC.out.versions.first())
+    ch_versions = ch_versions.mix(QUALIMAP_BAMQC.out.versions_qualimap)
 
     BAMTOOLS_STATS ( bam )
     ch_versions = ch_versions.mix(BAMTOOLS_STATS.out.versions.first())

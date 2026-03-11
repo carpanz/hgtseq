@@ -108,7 +108,8 @@ workflow HGTSEQ {
         // executes SORTBAM on input files from CSV
         SORTBAM (
             ch_input,
-            params.fasta
+            params.fasta,
+            []
         )
 
         BAM_QC (

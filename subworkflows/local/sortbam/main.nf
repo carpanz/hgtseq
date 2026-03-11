@@ -16,11 +16,11 @@ workflow SORTBAM {
     // samtools stats block needs the bam file to be sorted
     // and indexed
 
-    SAMTOOLS_SORT ( bam, [[],[]] )
-    ch_versions = ch_versions.mix(SAMTOOLS_SORT.out.versions.first())
+    SAMTOOLS_SORT ( bam, [[],[]], [[],[]])
+    ch_versions = ch_versions.mix(SAMTOOLS_SORT.out.versions_samtools)
 
     SAMTOOLS_INDEX ( SAMTOOLS_SORT.out.bam )
-    ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions.first())
+    ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions_samtools)
 
     // additionally, the modules require a single channel containing
     // both the bam file and its index
