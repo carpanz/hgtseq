@@ -102,24 +102,23 @@ workflow PIPELINE_INITIALISATION {
     //
 
     ch_samplesheet = channel.fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
-        .map {
-            meta, fastq_1, fastq_2 ->
-                if (!fastq_2) {
-                    return [ meta.id, meta + [ single_end:true ], [ fastq_1 ] ]
-                } else {
-                    return [ meta.id, meta + [ single_end:false ], [ fastq_1, fastq_2 ] ]
-                }
+    .map { meta, fastq_1, fastq_2 ->
+        if (!fastq_2) {
+            return [ meta.id, meta + [ single_end:true ], [ fastq_1 ] ]
+        } else {
+            return [ meta.id, meta + [ single_end:false ], [ fastq_1, fastq_2 ] ]
         }
     }
     .groupTuple()
-    .map { meta, files ->
-        [ meta, files.flatten() ]
+    .map { id, metas, files ->
+        [ metas[0], files.flatten() ]
     }
 
     emit:
     samplesheet = ch_samplesheet
     versions    = ch_versions
 
+}
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     SUBWORKFLOW FOR PIPELINE COMPLETION
