@@ -10,9 +10,9 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-ch_multiqc_config          = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
-ch_multiqc_custom_config   = params.multiqc_config ? Channel.fromPath( params.multiqc_config, checkIfExists: true ) : Channel.empty()
-ch_multiqc_logo            = params.multiqc_logo   ? Channel.fromPath( params.multiqc_logo, checkIfExists: true ) : Channel.empty()
+ch_multiqc_config          = channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
+ch_multiqc_custom_config   = params.multiqc_config ? channel.fromPath( params.multiqc_config, checkIfExists: true ) : channel.empty()
+ch_multiqc_logo            = params.multiqc_logo   ? channel.fromPath( params.multiqc_logo, checkIfExists: true ) : channel.empty()
 ch_multiqc_custom_methods_description = params.multiqc_methods_description ? file(params.multiqc_methods_description, checkIfExists: true) : file("$projectDir/assets/methods_description_template.yml", checkIfExists: true)
 
 /*
@@ -62,8 +62,8 @@ workflow HGTSEQ {
     ch_input
 
     main:
-    ch_versions = Channel.empty()
-    ch_multiqc_files = Channel.empty()
+    ch_versions = channel.empty()
+    ch_multiqc_files = channel.empty()
 
     // check if databases are local or compressed archives
     krakendb = returnFile(params.krakendb)
@@ -75,7 +75,7 @@ workflow HGTSEQ {
         UNTAR_KRAKEN(krakendb_input)
         ch_krakendb = UNTAR_KRAKEN.out.untar.map{ it[1] }
     } else {
-        ch_krakendb = Channel.value(krakendb)
+        ch_krakendb = channel.value(krakendb)
     }
 
     // parsing krona database
@@ -84,7 +84,7 @@ workflow HGTSEQ {
         UNTAR_KRONA(kronadb_input)
         ch_kronadb = UNTAR_KRONA.out.untar.map{ it[1] }
     } else {
-        ch_kronadb = Channel.value(kronadb)
+        ch_kronadb = channel.value(kronadb)
     }
 
 
@@ -165,7 +165,7 @@ workflow HGTSEQ {
     //
     // Collate and save software versions
     //
-    def topic_versions = Channel.topic("versions")
+    def topic_versions = channel.topic("versions")
         .distinct()
         .branch { entry ->
             versions_file: entry instanceof Path
@@ -243,16 +243,25 @@ workflow HGTSEQ {
         )
     )
 
-    MULTIQC (
-        ch_multiqc_files.collect(),
-        ch_multiqc_config.toList(),
-        ch_multiqc_custom_config.toList(),
-        ch_multiqc_logo.toList(),
-        [],
-        []
-    )
+    // Collect all inputs first
+    def multiqc_files_collected = ch_multiqc_files.collect()
+    def multiqc_config_list = ch_multiqc_config.toList()
+    def multiqc_custom_config_list = ch_multiqc_custom_config.toList()
+    def multiqc_logo_list = ch_multiqc_logo.toList()
 
-    emit:multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
+    // Create the MultiQC input channel
+    ch_multiqc_input = multiqc_files_collected
+        .combine(multiqc_config_list)
+        .combine(multiqc_custom_config_list)
+        .combine(multiqc_logo_list)
+        .map { files, config, custom_config, logo ->
+            [ [id: 'multiqc_report'], files, config, logo, [], [] ]
+        }
+
+    MULTIQC ( ch_multiqc_input )
+
+    emit:
+    multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
     versions       = ch_versions                 // channel: [ path(versions.yml) ]
 
 }

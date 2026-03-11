@@ -103,10 +103,14 @@ workflow PIPELINE_INITIALISATION {
 
     ch_samplesheet = channel.fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
     .map { meta, fastq_1, fastq_2 ->
+        // Create a proper meta map with id field
+        def sample_id = meta.id ?: meta.sample
+        def new_meta = [id: sample_id] + meta
+        
         if (!fastq_2) {
-            return [ meta.id, meta + [ single_end:true ], [ fastq_1 ] ]
+            return [ new_meta.id, new_meta + [ single_end: true ], [ fastq_1 ] ]
         } else {
-            return [ meta.id, meta + [ single_end:false ], [ fastq_1, fastq_2 ] ]
+            return [ new_meta.id, new_meta + [ single_end: false ], [ fastq_1, fastq_2 ] ]
         }
     }
     .groupTuple()
