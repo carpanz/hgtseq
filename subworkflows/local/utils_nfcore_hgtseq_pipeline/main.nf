@@ -101,10 +101,17 @@ workflow PIPELINE_INITIALISATION {
     // Create channel from input file provided through params.input
     //
 
+    //
+// Create channel from input file provided through params.input
+//
     ch_samplesheet = channel.fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
-    .map { meta, fastq_1, fastq_2 ->
-        // Create a proper meta map with id field
-        def sample_id = meta.id ?: meta.sample
+    .map { items ->
+        def meta = items[0]  // This is the meta map with 'sample' field
+        def fastq_1 = items[1]
+        def fastq_2 = items.size() > 2 ? items[2] : null
+        
+        // Create id from sample field
+        def sample_id = meta.sample
         def new_meta = [id: sample_id] + meta
         
         if (!fastq_2) {
