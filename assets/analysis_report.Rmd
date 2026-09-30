@@ -19,6 +19,7 @@ params:
 
 ```{r creationTibble, include=FALSE}
 library(GenomicRanges)
+library(GenomeInfoDb)
 library(ggbio)
 library(biovizBase)
 library(tidyverse)

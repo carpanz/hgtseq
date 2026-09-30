@@ -10,48 +10,50 @@
 
 ## Topic introduction
 
-The pipeline accepts either a FASTQ with raw paired-end reads from Illumina sequencing as input, or an already aligned paired-end BAM file. Raw reads are first trimmed for quality and Illumina adapters: the resulting high quality reads are aligned to the host genome, which is defined by its identifier in the iGenomes repository for seamless download, and via NCBI taxonomic identifier. Pre-aligned BAM files are then processed in parallel to extract 2 categories of reads, via their SAM bitwise flags. With bitwise flag 13, we extract reads classified as paired, which are unmapped and whose mate is also unmapped (i.e. both mates unmapped). With bitwise flag 5 we extract reads classified as paired, which are unmapped but whose mate is mapped (i.e. only one mate unmapped in a pair). In both cases we use flag 256 to exclude non-primary alignments. Both categories are classified using kraken2.
+The pipeline accepts either raw paired-end reads from Illumina sequencing, as FastQ files, or already aligned paired-end BAM files. Raw reads are first trimmed for quality and Illumina adapters: the resulting high quality reads are aligned to the host genome, which can be defined by its identifier in the iGenomes repository for seamless download. The aligned BAM files are then processed in parallel to extract 2 categories of reads, via their SAM bitwise flags. With bitwise flag 13, we extract reads classified as paired, which are unmapped and whose mate is also unmapped (i.e. both mates unmapped). With bitwise flag 5, excluding flag 8, we extract reads classified as paired, which are unmapped but whose mate is mapped (i.e. only one mate unmapped in a pair). In both cases we use flag 256 to exclude non-primary alignments. Both categories are classified using Kraken2.
 
-The second category, i.e. unmapped reads whose mate is mapped, provide the opportunity to infer the potential genomic location of an integration event, if confirmed, by using the information available for the properly mapped mate in the pair: for this category of reads, the pipeline parses the genomic coordinates of the mate from the BAM file, and merges them with the unmapped reads classified by kraken2. Finally, host-classified reads are filtered out and the data are used to generate krona plots and an HTML report with RMarkdown.
+The second category, i.e. unmapped reads whose mate is mapped, provides the opportunity to infer the potential genomic location of an integration event, if confirmed, by using the information available for the properly mapped mate in the pair: for this category of reads, the pipeline parses the genomic coordinates of the mate from the BAM file, and merges them with the unmapped reads classified by Kraken2. Finally, host-classified reads are filtered out and the data are used to generate Krona plots and an HTML report with RMarkdown.
 
-## Input Formats
+## Samplesheet input
 
-The input file can have at least two or three columns according to the format of reads used, i.e. two columns for BAM files and three for FASTQ files (as defined in the tables below).
+You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with a header row, as shown in the examples below.
 
-### FASTQ
+```bash
+--input '[path to samplesheet file]'
+```
 
-The FASTQ file extension can be either _fastq.gz_ or _fastq_.
+Each sample can be provided either as a pair of FastQ files, or as an aligned BAM file. Both types of samples can be mixed in the same samplesheet: in that case the header must contain all the columns, and the columns that do not apply to a sample are left empty. Sample names must be unique.
+
+### FastQ
 
 ```csv title="samplesheet.csv"
 sample,fastq_1,fastq_2
-testsample01,/path/to/file1_1.fastq.gz,/path/to/file1_2.fastq.gz
-testsample02,/path/to/file2_1.fastq.gz,/path/to/file2_2.fastq.gz
-testsample03,/path/to/file3_1.fastq.gz,/path/to/file3_2.fastq.gz
+SAMPLE1,/path/to/sample1_R1.fastq.gz,/path/to/sample1_R2.fastq.gz
+SAMPLE2,/path/to/sample2_R1.fastq.gz,/path/to/sample2_R2.fastq.gz
 ```
 
-| Column   | Description                                                                                                                                                                            |
-| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sample` | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
-| `input1` | Full path to FastQ file for Illumina short reads 1. File can be either _fastq.gz_ or _fastq_.                                                                                          |
-| `input2` | Full path to FastQ file for Illumina short reads 2. File can be either _fastq.gz_ or _fastq_.                                                                                          |
+| Column    | Description                                                                                                                  |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `sample`  | Custom sample name. It must be unique and cannot contain spaces.                                                             |
+| `fastq_1` | Full path to the FastQ file of the Illumina short reads 1. The file must be gzipped, with extension `.fastq.gz` or `.fq.gz`. |
+| `fastq_2` | Full path to the FastQ file of the Illumina short reads 2. The file must be gzipped, with extension `.fastq.gz` or `.fq.gz`. |
 
-An [example samplesheet](../assets/samplesheet_fastq.csv) has been provided with the pipeline.
+The reads are aligned to the reference genome provided with `--genome` or `--fasta`, which is therefore required for FastQ samples. An [example samplesheet](../assets/samplesheet_fastq.csv) has been provided with the pipeline.
 
 ### BAM
 
-```console
-sample,input1
-testsample01,/path/to/file1.bam
-testsample02,/path/to/file2.bam
-testsample03,/path/to/file3.bam
+```csv title="samplesheet.csv"
+sample,bam
+SAMPLE3,/path/to/sample3.bam
+SAMPLE4,/path/to/sample4.bam
 ```
 
-| Column   | Description                                                                                                                                                                            |
-| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sample` | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
-| `input1` | Full path to aligned BAM file.                                                                                                                                                         |
+| Column   | Description                                                                          |
+| -------- | ------------------------------------------------------------------------------------ |
+| `sample` | Custom sample name. It must be unique and cannot contain spaces.                     |
+| `bam`    | Full path to a BAM file with paired-end reads, aligned to the host reference genome. |
 
-An [example samplesheet](../assets/samplesheet_bam.csv) has been provided with the pipeline.
+The BAM files are sorted and indexed by the pipeline before the extraction of the unmapped reads. An [example samplesheet](../assets/samplesheet_bam.csv) has been provided with the pipeline.
 
 ## Running the pipeline
 
@@ -59,16 +61,16 @@ The typical command for running the pipeline is as follows:
 
 ```bash
 nextflow run nf-core/hgtseq \
--profile <singularity,docker,conda> \
---input samplesheet.csv \
---outdir <OUTDIR> \
---genome GRCh38 \
---taxonomy_id <TAXID> \
---krakendb /path/to/kraken_db \
---kronadb /path/to/krona_db/taxonomy.tab
+    -profile <docker/singularity/.../institute> \
+    --input samplesheet.csv \
+    --outdir <OUTDIR> \
+    --genome GRCh38 \
+    --taxonomy_id 9606 \
+    --krakendb /path/to/kraken2_db \
+    --kronadb /path/to/krona/taxonomy.tab
 ```
 
-This will launch the pipeline with the `singularity`, `docker` or `conda` configuration profile. See below for more information about profiles.
+This will launch the pipeline with the `docker` or `singularity` configuration profile. See below for more information about profiles.
 
 Note that the pipeline will create the following files in your working directory:
 
@@ -126,25 +128,27 @@ To further assist in reproducibility, you can use share and reuse [parameter fil
 
 ## Pipeline arguments
 
-> **NB:** These options are user-specific and use a _double_ hyphen.
-
-Please note that, in addition to the classic parameters such as `--input` and `--outdir`, the pipeline requires other specific parameters.
+In addition to `--input` and `--outdir`, the pipeline requires a few specific parameters. The full list of parameters is available in the [parameter documentation](https://nf-co.re/hgtseq/parameters).
 
 ### `--genome`
 
-The user must specify the genome of interest. A list of genomes is available in the pipeline under the folder conf/igenomes.config, that contains illumina iGenomes reference file paths. This follows [nf-core guidelines](https://nf-co.re/usage/reference_genomes) for reference management, and sets all necessary parameters (like fasta, gtf, bwa). The user is recommended to primarily use the _genome_ parameter, and can follow instructions at [this](https://nf-co.re/usage/reference_genomes#adding-paths-to-a-config-file) page to add genomes not currently included in the repository. All parameters set automatically as a consequence, though hidden, can be accessed by the user at command line should they wish a finer control.
+The reference genome of the host can be selected with `--genome`, among the ones listed in `conf/igenomes.config`, which contains the paths to the [Illumina iGenomes](https://support.illumina.com/sequencing/sequencing_software/igenome.html) reference files. This follows the [nf-core guidelines](https://nf-co.re/docs/running/reference_genomes) for reference management, and sets automatically the FASTA (`--fasta`), the annotation (`--gff`) and the aligner indices (`--bwaindex` and `--bwamem2index`). These hidden parameters can also be provided directly at the command line, for a finer control or to use a genome that is not available in iGenomes. When the aligner index is not available, it is built from the FASTA file.
+
+### `--aligner`
+
+The FastQ reads are aligned with BWA-MEM (`bwa-mem`, default) or BWA-MEM2 (`bwa-mem2`).
 
 ### `--taxonomy_id`
 
-Since the code in the report is executed differently based on the taxonomy id of the analyzed species, the user must enter it in the command line (must be taken from the Taxonomy Database of NCBI).
+Since the code in the report is executed differently based on the taxonomy ID of the analysed species, the NCBI [Taxonomy](https://www.ncbi.nlm.nih.gov/taxonomy) ID of the host must be provided (e.g. `9606` for _Homo sapiens_).
 
 ### `--krakendb`
 
-User must provide a Kraken2 database in order to perform the classification. Can optionally be in a `.tar.gz` archive.
+A Kraken2 database is required to classify the unmapped reads. It can be provided as a directory, or as a `.tar.gz` archive that is extracted by the pipeline. Pre-built databases can be downloaded from the [Kraken2 index zone](https://benlangmead.github.io/aws-indexes/k2).
 
 ### `--kronadb`
 
-User must also provide a Krona database in order to generate interactive pie charts with Kronatools. Can optionally be in a `.tar.gz` archive.
+A Krona taxonomy file (`taxonomy.tab`) is required to generate the interactive Krona plots. It can be provided directly, or as a `.tar.gz` archive that is extracted by the pipeline.
 
 ## Core Nextflow arguments
 
@@ -245,6 +249,5 @@ NXF_OPTS='-Xms1g -Xmx4g'
 
 ## Limitations
 
-- Our local module `ranalysis` execute the circular plot in the html report only if human data is used (i.e. `--taxonomy_id 9606`, mandatory parameter explained above)
-- If using `conda` as profile, hgtseq pipeline runs without executing `ranalysis` module due to a container conflict.
-- `Kraken2` used for taxonomic classification requires lot of memory (~100GB). So we plan to implement `Clark` in a future release.
+- The circular plot of the candidate integration sites in the HTML analysis report is only generated for human data (i.e. `--taxonomy_id 9606`).
+- Kraken2 loads the whole database in memory: the standard database requires ~100GB of memory, while smaller [pre-built databases](https://benlangmead.github.io/aws-indexes/k2) can be used on machines with less memory.

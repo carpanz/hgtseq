@@ -1,0 +1,64 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "reporting"
+description: Collate the Kraken2 classifications of all samples into Krona plots and an RMarkdown analysis report
+keywords:
+  - report
+  - krona
+  - rmarkdown
+components:
+  - gawk
+  - krona/ktimporttaxonomy
+  - ranalysis
+input:
+  - ch_classified_single:
+      type: file
+      description: |
+        Kraken2 read assignments of the reads unmapped with a mapped mate
+        Structure: [ val(meta), path(txt) ]
+  - ch_classified_both:
+      type: file
+      description: |
+        Kraken2 read assignments of the pairs with both mates unmapped
+        Structure: [ val(meta), path(txt) ]
+  - ch_integration_sites:
+      type: file
+      description: |
+        Candidate integration sites
+        Structure: [ val(meta), path(txt) ]
+  - ch_kronadb:
+      type: file
+      description: Krona taxonomy file
+      pattern: "*.tab"
+  - rmarkdown_template:
+      type: file
+      description: RMarkdown template of the analysis report
+      pattern: "*.Rmd"
+  - taxonomy_id:
+      type: integer
+      description: NCBI taxonomy ID of the host organism
+  - istest:
+      type: boolean
+      description: Whether the pipeline runs on test data
+output:
+  - krona_single:
+      type: file
+      description: |
+        Krona plot of the reads unmapped with a mapped mate
+        Structure: [ val(meta), path(html) ]
+      pattern: "*.html"
+  - krona_both:
+      type: file
+      description: |
+        Krona plot of the pairs with both mates unmapped
+        Structure: [ val(meta), path(html) ]
+      pattern: "*.html"
+  - report:
+      type: file
+      description: RMarkdown analysis report
+      pattern: "analysis_report.html"
+authors:
+  - "@carpanz"
+  - "@lescai"
+maintainers:
+  - "@carpanz"
+  - "@lescai"

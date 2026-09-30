@@ -11,10 +11,8 @@
 include { UTILS_NFSCHEMA_PLUGIN     } from '../../nf-core/utils_nfschema_plugin'
 include { paramsSummaryMap          } from 'plugin/nf-schema'
 include { samplesheetToList         } from 'plugin/nf-schema'
-include { paramsHelp                } from 'plugin/nf-schema'
 include { completionEmail           } from '../../nf-core/utils_nfcore_pipeline'
 include { completionSummary         } from '../../nf-core/utils_nfcore_pipeline'
-include { imNotification            } from '../../nf-core/utils_nfcore_pipeline'
 include { UTILS_NFCORE_PIPELINE     } from '../../nf-core/utils_nfcore_pipeline'
 include { UTILS_NEXTFLOW_PIPELINE   } from '../../nf-core/utils_nextflow_pipeline'
 
@@ -39,8 +37,6 @@ workflow PIPELINE_INITIALISATION {
 
     main:
 
-    ch_versions = channel.empty()
-
     //
     // Print version and exit if required and dump pipeline parameters to JSON file
     //
@@ -54,6 +50,9 @@ workflow PIPELINE_INITIALISATION {
     //
     // Validate parameters and generate parameter summary to stdout
     //
+
+    def before_text = ""
+    def after_text = ""
     before_text = """
 -\033[2m----------------------------------------------------\033[0m-
                                         \033[0;32m,--.\033[0;30m/\033[0;32m,-.\033[0m
@@ -71,7 +70,11 @@ workflow PIPELINE_INITIALISATION {
 * Software dependencies
     https://github.com/nf-core/hgtseq/blob/master/CITATIONS.md
 """
-    command = "nextflow run ${workflow.manifest.name} -profile <docker/singularity/.../institute> --input samplesheet.csv --outdir <OUTDIR>"
+    if (monochrome_logs) {
+        before_text = before_text.replaceAll(/\033\[[0-9;]*m/, '')
+    }
+
+    def command = "nextflow run ${workflow.manifest.name} -profile <docker/singularity/.../institute> --input samplesheet.csv --outdir <OUTDIR> --genome GRCh38 --krakendb <KRAKEN2_DB> --kronadb <KRONA_TAXONOMY>"
 
     UTILS_NFSCHEMA_PLUGIN (
         workflow,
@@ -82,7 +85,8 @@ workflow PIPELINE_INITIALISATION {
         show_hidden,
         before_text,
         after_text,
-        command
+        command,
+        false
     )
 
     //
@@ -99,37 +103,24 @@ workflow PIPELINE_INITIALISATION {
 
     //
     // Create channel from input file provided through params.input
+    // Each row is either a pair of FastQ files or an aligned BAM file
     //
-
-    //
-// Create channel from input file provided through params.input
-//
-    ch_samplesheet = channel.fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
-    .map { items ->
-        def meta = items[0]  // This is the meta map with 'sample' field
-        def fastq_1 = items[1]
-        def fastq_2 = items.size() > 2 ? items[2] : null
-        
-        // Create id from sample field
-        def sample_id = meta.sample
-        def new_meta = [id: sample_id] + meta
-        
-        if (!fastq_2) {
-            return [ new_meta.id, new_meta + [ single_end: true ], [ fastq_1 ] ]
-        } else {
-            return [ new_meta.id, new_meta + [ single_end: false ], [ fastq_1, fastq_2 ] ]
+    def ch_samplesheet = channel
+        .fromList(samplesheetToList(input, "${projectDir}/assets/schema_input.json"))
+        .map { meta, fastq_1, fastq_2, bam ->
+            if (bam) {
+                return [ meta + [ single_end: false, data_type: 'bam' ], [ bam ] ]
+            }
+            if (!params.fasta) {
+                error("Please provide a reference genome with '--genome' or '--fasta': it is required to align the FastQ files of sample '${meta.id}'")
+            }
+            return [ meta + [ single_end: false, data_type: 'fastq' ], [ fastq_1, fastq_2 ] ]
         }
-    }
-    .groupTuple()
-    .map { id, metas, files ->
-        [ metas[0], files.flatten() ]
-    }
 
     emit:
     samplesheet = ch_samplesheet
-    versions    = ch_versions
-
 }
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     SUBWORKFLOW FOR PIPELINE COMPLETION
@@ -144,7 +135,6 @@ workflow PIPELINE_COMPLETION {
     plaintext_email // boolean: Send plain-text email instead of HTML
     outdir          //    path: Path to output directory where results will be published
     monochrome_logs // boolean: Disable ANSI colour codes in log output
-    hook_url        //  string: hook URL for notifications
     multiqc_report  //  string: Path to MultiQC report
 
     main:
@@ -168,13 +158,11 @@ workflow PIPELINE_COMPLETION {
         }
 
         completionSummary(monochrome_logs)
-        if (hook_url) {
-            imNotification(summary_params, hook_url)
-        }
+
     }
 
     workflow.onError {
-        log.error "Pipeline failed. Please refer to troubleshooting docs: https://nf-co.re/docs/usage/troubleshooting"
+        log.error "Pipeline failed. Please refer to troubleshooting docs for common issues: https://nf-co.re/docs/running/troubleshooting"
     }
 }
 
@@ -190,20 +178,6 @@ def validateInputParameters() {
     genomeExistsError()
 }
 
-//
-// Validate channels from input samplesheet
-//
-def validateInputSamplesheet(input) {
-    def (metas, fastqs) = input[1..2]
-
-    // Check that multiple runs of the same sample are of the same datatype i.e. single-end / paired-end
-    def endedness_ok = metas.collect{ meta -> meta.single_end }.unique().size == 1
-    if (!endedness_ok) {
-        error("Please check input samplesheet -> Multiple runs of a sample must be of the same datatype i.e. single-end or paired-end: ${metas[0].id}")
-    }
-
-    return [ metas[0], fastqs ]
-}
 //
 // Get attribute from genome config file e.g. fasta
 //
@@ -233,13 +207,18 @@ def genomeExistsError() {
 // Generate methods description for MultiQC
 //
 def toolCitationText() {
-    // nf-core: Optionally add in-text citation tools to this list.
-    // Can use ternary operators to dynamically construct based conditions, e.g. params["run_xyz"] ? "Tool (Foo et al. 2023)" : "",
-    // Uncomment function in methodsDescriptionText to render in MultiQC report
     def citation_text = [
             "Tools used in the workflow included:",
             "FastQC (Andrews 2010),",
-            "MultiQC (Ewels et al. 2016)",
+            "Trim Galore! (Krueger et al. 2023),",
+            "BWA-MEM (Li 2013) or BWA-MEM2 (Vasimuddin et al. 2019),",
+            "SAMtools (Danecek et al. 2021),",
+            "Qualimap (Okonechnikov et al. 2016),",
+            "BamTools (Barnett et al. 2011),",
+            "Kraken2 (Wood et al. 2019),",
+            "Krona (Ondov et al. 2011),",
+            "ggbio (Yin et al. 2012)",
+            "and MultiQC (Ewels et al. 2016)",
             "."
         ].join(' ').trim()
 
@@ -247,12 +226,18 @@ def toolCitationText() {
 }
 
 def toolBibliographyText() {
-    // nf-core: Optionally add bibliographic entries to this list.
-    // Can use ternary operators to dynamically construct based conditions, e.g. params["run_xyz"] ? "<li>Author (2023) Pub name, Journal, DOI</li>" : "",
-    // Uncomment function in methodsDescriptionText to render in MultiQC report
     def reference_text = [
-            "<li>Andrews S, (2010) FastQC, URL: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).</li>",
-            "<li>Ewels, P., Magnusson, M., Lundin, S., & Käller, M. (2016). MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics , 32(19), 3047–3048. doi: /10.1093/bioinformatics/btw354</li>"
+            "<li>Andrews S, (2010) FastQC, URL: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/.</li>",
+            "<li>Krueger F, James F, Ewels P, Afyounian E, Weinstein M, Schuster-Boeckler B, Hulselmans G, & sclamons. (2023). FelixKrueger/TrimGalore. Zenodo. doi: 10.5281/zenodo.7598955</li>",
+            "<li>Li H. (2013). Aligning sequence reads, clone sequences and assembly contigs with BWA-MEM. arXiv:1303.3997</li>",
+            "<li>Vasimuddin Md, Misra S, Li H, Aluru S. (2019). Efficient Architecture-Aware Acceleration of BWA-MEM for Multicore Systems. IEEE IPDPS 2019, 314-324. doi: 10.1109/IPDPS.2019.00041</li>",
+            "<li>Danecek P, Bonfield JK, Liddle J, Marshall J, Ohan V, Pollard MO, Whitwham A, Keane T, McCarthy SA, Davies RM, Li H. (2021). Twelve years of SAMtools and BCFtools. GigaScience, 10(2), giab008. doi: 10.1093/gigascience/giab008</li>",
+            "<li>Okonechnikov K, Conesa A, García-Alcalde F. (2016). Qualimap 2: advanced multi-sample quality control for high-throughput sequencing data. Bioinformatics, 32(2), 292-294. doi: 10.1093/bioinformatics/btv566</li>",
+            "<li>Barnett DW, Garrison EK, Quinlan AR, Strömberg MP, Marth GT. (2011). BamTools: a C++ API and toolkit for analyzing and managing BAM files. Bioinformatics, 27(12), 1691-1692. doi: 10.1093/bioinformatics/btr174</li>",
+            "<li>Wood DE, Lu J, Langmead B. (2019). Improved metagenomic analysis with Kraken 2. Genome Biology, 20(1), 257. doi: 10.1186/s13059-019-1891-0</li>",
+            "<li>Ondov BD, Bergman NH, Phillippy AM. (2011). Interactive metagenomic visualization in a Web browser. BMC Bioinformatics, 12, 385. doi: 10.1186/1471-2105-12-385</li>",
+            "<li>Yin T, Cook D, Lawrence M. (2012). ggbio: an R package for extending the grammar of graphics for genomic data. Genome Biology, 13(8), R77. doi: 10.1186/gb-2012-13-8-r77</li>",
+            "<li>Ewels P, Magnusson M, Lundin S, Käller M. (2016). MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics, 32(19), 3047-3048. doi: 10.1093/bioinformatics/btw354</li>"
         ].join(' ').trim()
 
     return reference_text
@@ -279,12 +264,8 @@ def methodsDescriptionText(mqc_methods_yaml) {
     meta["nodoi_text"] = meta.manifest_map.doi ? "" : "<li>If available, make sure to update the text to include the Zenodo DOI of version of the pipeline used. </li>"
 
     // Tool references
-    meta["tool_citations"] = ""
-    meta["tool_bibliography"] = ""
-
-    // nf-core: Only uncomment below if logic in toolCitationText/toolBibliographyText has been filled!
-    // meta["tool_citations"] = toolCitationText().replaceAll(", \\.", ".").replaceAll("\\. \\.", ".").replaceAll(", \\.", ".")
-    // meta["tool_bibliography"] = toolBibliographyText()
+    meta["tool_citations"] = toolCitationText().replaceAll(", \\.", ".").replaceAll("\\. \\.", ".").replaceAll(", \\.", ".")
+    meta["tool_bibliography"] = toolBibliographyText()
 
 
     def methods_text = mqc_methods_yaml.text

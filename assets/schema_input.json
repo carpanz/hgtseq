@@ -10,30 +10,32 @@
             "sample": {
                 "type": "string",
                 "pattern": "^\\S+$",
-                "errorMessage": "Sample name must be provided and cannot contain spaces"
+                "errorMessage": "Sample name must be provided and cannot contain spaces",
+                "meta": ["id"]
             },
             "fastq_1": {
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
                 "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 1 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+                "errorMessage": "FastQ file for reads 1 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
             },
             "fastq_2": {
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
                 "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 2 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+                "errorMessage": "FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
             },
             "bam": {
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
-                "pattern": "^\\S+\\.bam$",
+                "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.bam$",
                 "errorMessage": "BAM file cannot contain spaces and must have extension '.bam'"
             }
         },
+        "required": ["sample"],
         "oneOf": [
             {
                 "required": ["fastq_1", "fastq_2"],
@@ -41,8 +43,9 @@
             },
             {
                 "required": ["bam"],
-                "not": { "required": ["fastq_1", "fastq_2"] }
+                "not": { "anyOf": [{ "required": ["fastq_1"] }, { "required": ["fastq_2"] }] }
             }
         ]
-    }
+    },
+    "uniqueEntries": ["sample"]
 }

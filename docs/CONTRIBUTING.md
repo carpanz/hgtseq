@@ -182,4 +182,7 @@ If you update images or graphics, follow the nf-core [style guidelines](https://
 
 ## Pipeline specific contribution guidelines
 
-<!-- TODO nf-core: Add any pipeline specific contribution guidelines here, such as coding styles, procedures, checklists etc. -->
+- The pipeline is written in the Nextflow [strict syntax](https://www.nextflow.io/docs/latest/strict-syntax.html): run `nextflow lint .` before opening a pull request.
+- Parameters should only be accessed in `main.nf`, and passed explicitly to the workflows and subworkflows.
+- Software versions are collected through the `versions` topic channel: new local modules should emit their tool versions with `eval` outputs sent to `topic: versions`.
+- Use the nf-core modules whenever possible, and add a stub block to any new local module so that the pipeline can be tested with `-stub`.

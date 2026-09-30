@@ -56,6 +56,12 @@
 
   > Yihui Xie and J.J. Allaire and Garrett Grolemund (2018). R Markdown: The Definitive Guide. Chapman and Hall/CRC. ISBN 9781138359338. URL https://bookdown.org/yihui/rmarkdown.
 
+- [ggbio](https://bioconductor.org/packages/ggbio/)
+
+  > Yin T, Cook D, Lawrence M. ggbio: an R package for extending the grammar of graphics for genomic data. Genome Biol. 2012 Aug 31;13(8):R77. doi: 10.1186/gb-2012-13-8-r77.
+
+- [GNU Awk](https://www.gnu.org/software/gawk/)
+
 ## Software packaging/containerisation tools
 
 - [Anaconda](https://anaconda.com)

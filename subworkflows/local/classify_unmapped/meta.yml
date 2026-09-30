@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "classify_unmapped"
+description: |
+  Extract the unmapped reads from the alignments and classify them with Kraken2.
+  Reads unmapped with a mapped mate ('single') are also used to infer candidate integration sites,
+  while pairs with both mates unmapped ('both') are classified separately.
+keywords:
+  - unmapped
+  - metagenomics
+  - classification
+  - kraken2
+  - horizontal gene transfer
+components:
+  - samtools/view
+  - kraken2/kraken2
+  - samtools/bamtofastq
+input:
+  - ch_bam_bai:
+      type: file
+      description: |
+        Channel with the sorted alignments and their index
+        Structure: [ val(meta), path(bam), path(bai) ]
+      pattern: "*.{bam,bai}"
+  - ch_krakendb:
+      type: directory
+      description: Kraken2 database
+output:
+  - classified_single:
+      type: file
+      description: |
+        Kraken2 read assignments of the reads unmapped with a mapped mate
+        Structure: [ val(meta), path(txt) ]
+      pattern: "*.kraken2.classifiedreads.txt"
+  - classified_both:
+      type: file
+      description: |
+        Kraken2 read assignments of the pairs with both mates unmapped
+        Structure: [ val(meta), path(txt) ]
+      pattern: "*.kraken2.classifiedreads.txt"
+  - report_single:
+      type: file
+      description: |
+        Kraken2 report of the reads unmapped with a mapped mate
+        Structure: [ val(meta), path(txt) ]
+      pattern: "*.kraken2.report.txt"
+  - report_both:
+      type: file
+      description: |
+        Kraken2 report of the pairs with both mates unmapped
+        Structure: [ val(meta), path(txt) ]
+      pattern: "*.kraken2.report.txt"
+  - candidate_integrations:
+      type: file
+      description: |
+        Read name, chromosome and position of the mapped mate of each read unmapped with a mapped mate
+        Structure: [ val(meta), path(txt) ]
+      pattern: "*_parsed_integration_sites.txt"
+authors:
+  - "@carpanz"
+  - "@lescai"
+maintainers:
+  - "@carpanz"
+  - "@lescai"

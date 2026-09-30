@@ -1,48 +1,36 @@
-// runs SAMPLE_QC from either reads or bam files
-// or both after alignment
+//
+// Quality control of sorted and indexed BAM files
+//
 
-include { BAMTOOLS_STATS    } from '../../../modules/nf-core/bamtools/stats/main'
-include { SAMTOOLS_SORT     } from '../../../modules/nf-core/samtools/sort/main'
-include { SAMTOOLS_INDEX    } from '../../../modules/nf-core/samtools/index/main'
 include { SAMTOOLS_STATS    } from '../../../modules/nf-core/samtools/stats/main'
-include { SAMTOOLS_IDXSTATS } from '../../../modules/nf-core/samtools/idxstats/main'
 include { SAMTOOLS_FLAGSTAT } from '../../../modules/nf-core/samtools/flagstat/main'
+include { SAMTOOLS_IDXSTATS } from '../../../modules/nf-core/samtools/idxstats/main'
 include { QUALIMAP_BAMQC    } from '../../../modules/nf-core/qualimap/bamqc/main'
+include { BAMTOOLS_STATS    } from '../../../modules/nf-core/bamtools/stats/main'
 
 workflow BAM_QC {
 
     take:
-    bam        // channel: [mandatory] [ val(meta), path(bam) ]
-    bam_bai    // channel: [mandatory] [ val(meta), path(bam), path(bai) ]
-    fasta      // channel: [mandatory] path(fasta)
-    gff        // channel: [optional] path(gff)
+    ch_bam_bai  // channel: [ val(meta), path(bam), path(bai) ]
+    gff         // path:    annotation used by Qualimap to restrict the analysis (optional, [] when missing)
 
     main:
-    ch_versions = channel.empty()
+    def ch_bam = ch_bam_bai.map { meta, bam, _bai -> [ meta, bam ] }
 
-    SAMTOOLS_STATS ( bam_bai, [[],[]] )
-    ch_versions = ch_versions.mix(SAMTOOLS_STATS.out.versions_samtools)
+    SAMTOOLS_STATS ( ch_bam_bai, [ [], [], [] ] )
 
-    SAMTOOLS_FLAGSTAT ( bam_bai )
-    ch_versions = ch_versions.mix(SAMTOOLS_FLAGSTAT.out.versions_samtools)
+    SAMTOOLS_FLAGSTAT ( ch_bam_bai )
 
-    SAMTOOLS_IDXSTATS ( bam_bai )
-    ch_versions = ch_versions.mix(SAMTOOLS_IDXSTATS.out.versions_samtools)
+    SAMTOOLS_IDXSTATS ( ch_bam_bai )
 
-    // qualimap requires the original bam file
-    // but also a GFF file with the regions to run the QC on
-    QUALIMAP_BAMQC ( bam, gff )
-    ch_versions = ch_versions.mix(QUALIMAP_BAMQC.out.versions_qualimap)
+    QUALIMAP_BAMQC ( ch_bam, gff )
 
-    BAMTOOLS_STATS ( bam )
-    ch_versions = ch_versions.mix(BAMTOOLS_STATS.out.versions.first())
+    BAMTOOLS_STATS ( ch_bam )
 
     emit:
-    stats    = SAMTOOLS_STATS.out.stats       // channel: [ val(meta), [ stats ] ]
-    flagstat = SAMTOOLS_FLAGSTAT.out.flagstat // channel: [ val(meta), [ flagstat ] ]
-    idxstats = SAMTOOLS_IDXSTATS.out.idxstats // channel: [ val(meta), [ idxstats ] ]
-    qualimap = QUALIMAP_BAMQC.out.results     // channel: [ val(meta), [ results ] ]
-    bamstats = BAMTOOLS_STATS.out.stats       // channel: [ val(meta), [ bamstats ] ]
-
-    versions = ch_versions                    // channel: [ versions.yml ]
+    stats    = SAMTOOLS_STATS.out.stats        // channel: [ val(meta), path(stats) ]
+    flagstat = SAMTOOLS_FLAGSTAT.out.flagstat  // channel: [ val(meta), path(flagstat) ]
+    idxstats = SAMTOOLS_IDXSTATS.out.idxstats  // channel: [ val(meta), path(idxstats) ]
+    qualimap = QUALIMAP_BAMQC.out.results      // channel: [ val(meta), path(results) ]
+    bamstats = BAMTOOLS_STATS.out.stats        // channel: [ val(meta), path(stats) ]
 }

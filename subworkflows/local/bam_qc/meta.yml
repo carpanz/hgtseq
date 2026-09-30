@@ -1,0 +1,60 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "bam_qc"
+description: Quality control of sorted and indexed alignments
+keywords:
+  - bam
+  - qc
+  - statistics
+components:
+  - samtools/stats
+  - samtools/flagstat
+  - samtools/idxstats
+  - qualimap/bamqc
+  - bamtools/stats
+input:
+  - ch_bam_bai:
+      type: file
+      description: |
+        Channel with the sorted alignments and their index
+        Structure: [ val(meta), path(bam), path(bai) ]
+      pattern: "*.{bam,bai}"
+  - gff:
+      type: file
+      description: Annotation used by Qualimap to restrict the analysis to the annotated regions (optional)
+      pattern: "*.{gff,gff3,gtf}"
+output:
+  - stats:
+      type: file
+      description: |
+        SAMtools stats
+        Structure: [ val(meta), path(stats) ]
+      pattern: "*.stats"
+  - flagstat:
+      type: file
+      description: |
+        SAMtools flagstat
+        Structure: [ val(meta), path(flagstat) ]
+      pattern: "*.flagstat"
+  - idxstats:
+      type: file
+      description: |
+        SAMtools idxstats
+        Structure: [ val(meta), path(idxstats) ]
+      pattern: "*.idxstats"
+  - qualimap:
+      type: directory
+      description: |
+        Qualimap BamQC results
+        Structure: [ val(meta), path(results) ]
+  - bamstats:
+      type: file
+      description: |
+        BamTools stats
+        Structure: [ val(meta), path(stats) ]
+      pattern: "*.stats"
+authors:
+  - "@carpanz"
+  - "@lescai"
+maintainers:
+  - "@carpanz"
+  - "@lescai"

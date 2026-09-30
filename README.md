@@ -25,62 +25,70 @@
 
 The pipeline uses metagenomic classification of paired-read alignments against a reference genome to identify the presence of non-host microbial sequences within read pairs, and to infer potential integration sites into the host genome.
 
-The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It uses Docker/Singularity containers making installation trivial and results highly reproducible. The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementation of this pipeline uses one container per process which makes it much easier to maintain and update software dependencies. Where possible, these processes have been submitted to and installed from [nf-core/modules](https://github.com/nf-core/modules) in order to make them available to all nf-core pipelines, and to everyone within the Nextflow community!
-
 On release, automated continuous integration tests run the pipeline on a full-sized dataset on the AWS cloud infrastructure. This ensures that the pipeline runs on AWS, has sensible resource allocation defaults set to run on real-world datasets, and permits the persistent storage of results to benchmark between pipeline releases and other analysis sources. The results obtained from the full-sized test can be viewed on the [nf-core website](https://nf-co.re/hgtseq/results).
 
-## Functionality Overview
-
-A graphical view of the pipeline can be seen below.
-
 <p align="center">
-<img src="docs/images/hgtseq_pipeline_metromap.png" alt="nf-core/circdna metromap" width="70%">
+<img src="docs/images/hgtseq_pipeline_metromap.png" alt="nf-core/hgtseq metro map" width="70%">
 </p>
 
 ## Pipeline summary
 
-1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
-2. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
-3. Adapter and quality trimming ([`Trim Galore`](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/))
-4. Mapping reads using BWA ([`BWA`](http://bio-bwa.sourceforge.net))
-5. Sort and index alignments, extraction reads by sam flag and conversion to fastq format([`SAMtools`](https://www.htslib.org))
-6. Taxonomic classification ([`Kraken2`](https://github.com/DerrickWood/kraken2/blob/master/docs/MANUAL.markdown))
-7. Plotting Kraken2 results ([`Krona`](https://hpc.nih.gov/apps/kronatools.html))
-8. Html analysis report ([`RMarkDown`](https://rmarkdown.rstudio.com))
+The pipeline accepts paired-end FastQ files or already aligned BAM files, which can be mixed in the same samplesheet.
+
+1. FastQ input only:
+   1. Raw reads QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
+   2. Adapter and quality trimming ([`Trim Galore!`](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/))
+   3. Trimmed reads QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
+   4. Alignment to the host genome ([`BWA-MEM`](https://github.com/lh3/bwa) or [`BWA-MEM2`](https://github.com/bwa-mem2/bwa-mem2))
+2. Sorting and indexing of the alignments ([`SAMtools`](https://www.htslib.org))
+3. Alignment QC ([`SAMtools`](https://www.htslib.org), [`Qualimap`](http://qualimap.conesalab.org), [`BamTools`](https://github.com/pezmaster31/bamtools))
+4. Extraction of the unmapped reads by SAM flag, in two categories: reads unmapped with a mapped mate, and read pairs with both mates unmapped ([`SAMtools`](https://www.htslib.org))
+5. Parsing of the candidate integration sites from the position of the mapped mates ([`SAMtools`](https://www.htslib.org))
+6. Taxonomic classification of the unmapped reads ([`Kraken2`](https://github.com/DerrickWood/kraken2))
+7. Interactive plots of the classified reads ([`Krona`](https://github.com/marbl/Krona))
+8. HTML analysis report ([`RMarkdown`](https://rmarkdown.rstudio.com), [`ggbio`](https://bioconductor.org/packages/ggbio/))
+9. QC summary report ([`MultiQC`](http://multiqc.info/))
 
 ## Usage
 
-> **Note**
-> If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how
-> to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline)
-> with `-profile test` before running the workflow on actual data.
+> [!NOTE]
+> If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/get_started/environment_setup/overview) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/get_started/run-your-first-pipeline) with `-profile test` before running the workflow on actual data.
 
-```console
-nextflow run nf-core/hgtseq \
---input <YOURINPUT>.csv \
---outdir <OUTDIR> \
---genome GRCh38 \
---taxonomy_id "TAXID" \
--profile <docker/singularity/podman/shifter/charliecloud/conda/institute> \
---krakendb /path/to/kraken_db \
---kronadb /path/to/krona_db/taxonomy.tab
+First, prepare a samplesheet with your input data. Each row is either a sample with a pair of FastQ files:
+
+```csv title="samplesheet.csv"
+sample,fastq_1,fastq_2
+SAMPLE1,sample1_R1.fastq.gz,sample1_R2.fastq.gz
 ```
+
+or a sample with an aligned BAM file:
+
+```csv title="samplesheet.csv"
+sample,bam
+SAMPLE2,sample2.bam
+```
+
+Now, you can run the pipeline using:
 
 ```bash
 nextflow run nf-core/hgtseq \
    -profile <docker/singularity/.../institute> \
    --input samplesheet.csv \
-   --outdir <OUTDIR>
+   --outdir <OUTDIR> \
+   --genome GRCh38 \
+   --taxonomy_id 9606 \
+   --krakendb /path/to/kraken2_db \
+   --kronadb /path/to/krona/taxonomy.tab
 ```
 
 > [!WARNING]
 > Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_; see [docs](https://nf-co.re/docs/running/run-pipelines#using-parameter-files).
 
-For more details, please refer to the [usage documentation](https://nf-co.re/hgtseq/usage) and the [parameter documentation](https://nf-co.re/hgtseq/parameters).
+For more details and further functionality, please refer to the [usage documentation](https://nf-co.re/hgtseq/usage) and the [parameter documentation](https://nf-co.re/hgtseq/parameters).
 
 ## Pipeline output
 
-To see the the results of a test run with a full size dataset refer to the [results](https://nf-co.re/hgtseq/results) tab on the nf-core website pipeline page.
+To see the results of an example test run with a full size dataset refer to the [results](https://nf-co.re/hgtseq/results) tab on the nf-core website pipeline page.
 For more details about the output files and reports, please refer to the
 [output documentation](https://nf-co.re/hgtseq/output).
 
@@ -98,9 +106,11 @@ For further information or help, don't hesitate to get in touch on the [Slack `#
 
 ## Citations
 
-<!-- nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
+If you use nf-core/hgtseq for your analysis, please cite the article describing the pipeline:
 
-If you use nf-core/hgtseq for your analysis, please cite it using the following doi: [10.5281/zenodo.7244734](https://doi.org/10.5281/zenodo.7244734)
+> Carpanzano S, Santorsola M, nf-core community, Lescai F. hgtseq: A Standard Pipeline to Study Horizontal Gene Transfer. _Int J Mol Sci._ 2022 Nov 22;23(23):14512. doi: [10.3390/ijms232314512](https://doi.org/10.3390/ijms232314512).
+
+and the Zenodo doi of the version you used: [10.5281/zenodo.7244734](https://doi.org/10.5281/zenodo.7244734)
 
 An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 

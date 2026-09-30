@@ -10,7 +10,7 @@
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
-            "required": ["input", "outdir", "taxonomy_id"],
+            "required": ["input", "outdir"],
             "properties": {
                 "input": {
                     "type": "string",
@@ -20,7 +20,7 @@
                     "mimetype": "text/csv",
                     "pattern": "^\\S+\\.csv$",
                     "description": "Path to comma-separated file containing information about the samples in the experiment.",
-                    "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row.",
+                    "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with a header row and either 3 columns (`sample,fastq_1,fastq_2`) for paired-end FastQ files, or 2 columns (`sample,bam`) for aligned BAM files. See [usage docs](https://nf-co.re/hgtseq/usage#samplesheet-input).",
                     "fa_icon": "fas fa-file-csv"
                 },
                 "outdir": {
@@ -29,53 +29,61 @@
                     "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
                     "fa_icon": "fas fa-folder-open"
                 },
-                "taxonomy_id": {
-                    "type": "number",
-                    "description": "TaxID of samples used as input"
-                },
                 "email": {
                     "type": "string",
-                    "description": "Email address for completion summary."
+                    "description": "Email address for completion summary.",
+                    "fa_icon": "fas fa-envelope",
+                    "help_text": "Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits. If set in your user config file (`~/.nextflow/config`) then you don't need to specify this on the command line for every run.",
+                    "pattern": "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$"
                 },
                 "multiqc_title": {
                     "type": "string",
-                    "description": "MultiQC report title. Printed as page header, used for filename if not otherwise specified."
-                },
-                "isbam": {
-                    "type": "boolean",
-                    "description": "Indicates if input files are BAMs: if not, FASTQ files are assumed and alignment is run"
-                },
-                "istest": {
-                    "type": "boolean",
-                    "description": "Defines if pipeline is running a test or using full scale inputs",
-                    "hidden": true
+                    "description": "MultiQC report title. Printed as page header, used for filename if not otherwise specified.",
+                    "fa_icon": "fas fa-file-signature"
                 }
             }
         },
-        "run_options": {
-            "title": "Run options",
+        "pipeline_options": {
+            "title": "Pipeline options",
             "type": "object",
-            "description": "",
-            "default": "",
+            "fa_icon": "fas fa-cogs",
+            "description": "Options controlling the alignment and the analysis report.",
+            "required": ["taxonomy_id"],
             "properties": {
                 "aligner": {
                     "type": "string",
                     "default": "bwa-mem",
-                    "description": "Choose if aligner should be bwa-mem or bwa-mem2"
+                    "enum": ["bwa-mem", "bwa-mem2"],
+                    "fa_icon": "fas fa-align-center",
+                    "description": "Aligner used to map the FastQ reads to the host reference genome.",
+                    "help_text": "Only used for samples provided as FastQ files. BAM files are used as they are."
+                },
+                "taxonomy_id": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-sitemap",
+                    "description": "NCBI taxonomy ID of the host organism (e.g. 9606 for human).",
+                    "help_text": "The analysis report draws the host-specific plots, such as the circos plot of the candidate integration sites, only when this is set to 9606 (_Homo sapiens_)."
+                },
+                "istest": {
+                    "type": "boolean",
+                    "hidden": true,
+                    "fa_icon": "fas fa-vial",
+                    "description": "Whether the pipeline is run on the test data: some sections of the analysis report are skipped."
                 },
                 "multiqc_runkraken": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Choose if multiqc has data to add kraken to report",
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-chart-bar",
+                    "description": "Include the Kraken2 classification reports in the MultiQC report."
                 }
             }
         },
         "reference_genome_options": {
             "title": "Reference genome options",
             "type": "object",
-            "description": "Reference genome related files and options required for the workflow",
-            "default": "",
+            "fa_icon": "fas fa-dna",
+            "description": "Reference genome related files and options required for the workflow.",
             "properties": {
                 "genome": {
                     "type": "string",
@@ -86,19 +94,36 @@
                 "fasta": {
                     "type": "string",
                     "format": "file-path",
-                    "hidden": true,
+                    "exists": true,
                     "mimetype": "text/plain",
                     "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
                     "description": "Path to FASTA genome file.",
-                    "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have a BWA index available this will be generated for you automatically. Combine with `--save_reference` to save BWA index for future runs.",
+                    "help_text": "Required to align the reads of the samples provided as FastQ files. It is set automatically when using `--genome`.",
                     "fa_icon": "far fa-file-code"
                 },
-                "igenomes_base": {
+                "gff": {
                     "type": "string",
-                    "default": "s3://ngi-igenomes/igenomes/",
-                    "description": "Directory / URL base for iGenomes references.",
-                    "format": "directory-path",
-                    "hidden": true
+                    "format": "file-path",
+                    "exists": true,
+                    "mimetype": "text/plain",
+                    "fa_icon": "fas fa-file-alt",
+                    "hidden": true,
+                    "description": "Path to GFF/GTF annotation file, used by Qualimap to restrict the alignment QC to the annotated regions.",
+                    "help_text": "It is set automatically when using `--genome`."
+                },
+                "bwaindex": {
+                    "type": "string",
+                    "fa_icon": "fas fa-bezier-curve",
+                    "hidden": true,
+                    "description": "Path to a directory containing a pre-built BWA-MEM index.",
+                    "help_text": "If not provided, the index is built from the FASTA file. It is set automatically when using `--genome`."
+                },
+                "bwamem2index": {
+                    "type": "string",
+                    "fa_icon": "fas fa-bezier-curve",
+                    "hidden": true,
+                    "description": "Path to a directory containing a pre-built BWA-MEM2 index.",
+                    "help_text": "If not provided, the index is built from the FASTA file. It is set automatically when using `--genome`."
                 },
                 "igenomes_ignore": {
                     "type": "boolean",
@@ -107,71 +132,80 @@
                     "hidden": true,
                     "help_text": "Do not load `igenomes.config` when running the pipeline. You may choose this option if you observe clashes between custom parameters and those supplied in `igenomes.config`."
                 },
+                "igenomes_base": {
+                    "type": "string",
+                    "description": "The base path to the igenomes reference files",
+                    "fa_icon": "fas fa-ban",
+                    "hidden": true,
+                    "default": "s3://ngi-igenomes/igenomes/"
+                }
+            }
+        },
+        "classification_databases": {
+            "title": "Classification databases",
+            "type": "object",
+            "fa_icon": "fas fa-database",
+            "description": "Databases used for the taxonomic classification of the unmapped reads.",
+            "required": ["krakendb", "kronadb"],
+            "properties": {
                 "krakendb": {
                     "type": "string",
-                    "description": "A local path to kraken database folder or compressed database file, or a URL to a compressed database file, in tar.gz format"
+                    "fa_icon": "fas fa-database",
+                    "description": "Path to the Kraken2 database, either a directory or a `.tar.gz` archive (local path or URL).",
+                    "help_text": "Pre-built Kraken2 databases can be downloaded from https://benlangmead.github.io/aws-indexes/k2."
                 },
                 "kronadb": {
                     "type": "string",
-                    "description": "A local path or a URL to a .tab krona taxonomy file; it can also receive a compressed .tab file in tar.gz format"
-                },
-                "gff": {
-                    "type": "string",
-                    "description": "Path to GFF/GTF annotation file.",
-                    "format": "file-path",
-                    "mimetype": "text/plain",
-                    "hidden": true
-                },
-                "bwaindex": {
-                    "type": "string",
-                    "description": "Path bwa-mem indexes",
-                    "hidden": true
-                },
-                "bwamem2index": {
-                    "type": "string",
-                    "description": "Path bwa-mem2 indexes",
-                    "hidden": true
+                    "fa_icon": "fas fa-database",
+                    "description": "Path to the Krona taxonomy `.tab` file, or a `.tar.gz` archive containing it (local path or URL)."
                 }
-            },
-            "required": ["krakendb", "kronadb"]
+            }
         },
         "institutional_config_options": {
             "title": "Institutional config options",
             "type": "object",
+            "fa_icon": "fas fa-university",
             "description": "Parameters used to describe centralised config profiles. These should not be edited.",
-            "default": "",
+            "help_text": "The centralised nf-core configuration profiles use a handful of pipeline parameters to describe themselves. This information is then printed to the Nextflow log when you run a pipeline. You should not need to change these values when you run a pipeline.",
             "properties": {
                 "custom_config_version": {
                     "type": "string",
+                    "description": "Git commit id for Institutional configs.",
                     "default": "master",
                     "hidden": true,
-                    "description": "Git commit id for Institutional configs."
+                    "fa_icon": "fas fa-users-cog"
                 },
                 "custom_config_base": {
                     "type": "string",
+                    "description": "Base directory for Institutional configs.",
                     "default": "https://raw.githubusercontent.com/nf-core/configs/master",
                     "hidden": true,
-                    "description": "Base directory for Institutional configs."
+                    "help_text": "If you're running offline, Nextflow will not be able to fetch the institutional config files from the internet. If you don't need them, then this is not a problem. If you do need them, you should download the files from the repo and tell Nextflow where to find them with this parameter.",
+                    "fa_icon": "fas fa-users-cog"
                 },
                 "config_profile_name": {
                     "type": "string",
+                    "description": "Institutional config name.",
                     "hidden": true,
-                    "description": "Institutional config name."
+                    "fa_icon": "fas fa-users-cog"
                 },
                 "config_profile_description": {
                     "type": "string",
+                    "description": "Institutional config description.",
                     "hidden": true,
-                    "description": "Institutional config description."
+                    "fa_icon": "fas fa-users-cog"
                 },
                 "config_profile_contact": {
                     "type": "string",
+                    "description": "Institutional config contact information.",
                     "hidden": true,
-                    "description": "Institutional config contact information."
+                    "fa_icon": "fas fa-users-cog"
                 },
                 "config_profile_url": {
                     "type": "string",
+                    "description": "Institutional config URL link.",
                     "hidden": true,
-                    "description": "Institutional config URL link."
+                    "fa_icon": "fas fa-users-cog"
                 }
             }
         },
@@ -192,34 +226,56 @@
                     "type": "string",
                     "default": "copy",
                     "description": "Method used to save pipeline results to output directory.",
+                    "help_text": "The Nextflow `publishDir` option specifies which intermediate files should be saved to the output directory. This option tells the pipeline what method should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for details.",
+                    "fa_icon": "fas fa-copy",
+                    "enum": ["symlink", "rellink", "link", "copy", "copyNoFollow", "move"],
                     "hidden": true
                 },
                 "email_on_fail": {
                     "type": "string",
                     "description": "Email address for completion summary, only when pipeline fails.",
-                    "pattern": "^([a-zA-Z0-9_\\\\-\\\\.]+)@([a-zA-Z0-9_\\\\-\\\\.]+)\\\\.([a-zA-Z]{2,5})$",
+                    "fa_icon": "fas fa-exclamation-triangle",
+                    "pattern": "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$",
+                    "help_text": "An email address to send a summary email to when the pipeline is completed - ONLY sent if the pipeline does not exit successfully.",
                     "hidden": true
                 },
                 "plaintext_email": {
                     "type": "boolean",
                     "description": "Send plain-text email instead of HTML.",
+                    "fa_icon": "fas fa-remove-format",
                     "hidden": true
                 },
                 "max_multiqc_email_size": {
                     "type": "string",
-                    "default": "25.MB",
                     "description": "File size limit when attaching MultiQC reports to summary emails.",
+                    "pattern": "^\\d+(\\.\\d+)?\\.?\\s*(K|M|G|T)?B$",
+                    "default": "25.MB",
+                    "fa_icon": "fas fa-file-upload",
                     "hidden": true
                 },
                 "monochrome_logs": {
                     "type": "boolean",
                     "description": "Do not use coloured log outputs.",
+                    "fa_icon": "fas fa-palette",
                     "hidden": true
                 },
-                "hook_url": {
+                "multiqc_config": {
                     "type": "string",
-                    "hidden": true,
-                    "description": "Incoming hook URL for messaging service"
+                    "format": "file-path",
+                    "description": "Custom config file to supply to MultiQC.",
+                    "fa_icon": "fas fa-cog",
+                    "hidden": true
+                },
+                "multiqc_logo": {
+                    "type": "string",
+                    "description": "Custom logo file to supply to MultiQC. File name must also be set in the MultiQC config file",
+                    "fa_icon": "fas fa-image",
+                    "hidden": true
+                },
+                "multiqc_methods_description": {
+                    "type": "string",
+                    "description": "Custom MultiQC yaml file containing HTML including a methods description.",
+                    "fa_icon": "fas fa-cog"
                 },
                 "validate_params": {
                     "type": "boolean",
@@ -228,30 +284,18 @@
                     "fa_icon": "fas fa-check-square",
                     "hidden": true
                 },
+                "pipelines_testdata_base_path": {
+                    "type": "string",
+                    "fa_icon": "far fa-check-circle",
+                    "description": "Base URL or local path to location of pipeline test dataset files",
+                    "default": "https://raw.githubusercontent.com/nf-core/test-datasets/",
+                    "hidden": true
+                },
                 "trace_report_suffix": {
                     "type": "string",
                     "fa_icon": "far calendar",
                     "description": "Suffix to add to the trace report filename. Default is the date and time in the format yyyy-MM-dd_HH-mm-ss.",
                     "hidden": true
-                },
-                "multiqc_config": {
-                    "type": "string",
-                    "description": "Custom config file to supply to MultiQC.",
-                    "hidden": true
-                },
-                "multiqc_logo": {
-                    "type": "string",
-                    "description": "Custom logo file to supply to MultiQC. File name must also be set in the MultiQC config file",
-                    "hidden": true
-                },
-                "multiqc_methods_description": {
-                    "type": "string",
-                    "description": "Custom MultiQC yaml file containing HTML including a methods description."
-                },
-                "pipelines_testdata_base_path": {
-                    "type": "string",
-                    "default": "https://raw.githubusercontent.com/nf-core/test-datasets/",
-                    "description": "Path to nf-core/test-datasets"
                 },
                 "help": {
                     "type": ["boolean", "string"],
@@ -273,10 +317,13 @@
             "$ref": "#/$defs/input_output_options"
         },
         {
-            "$ref": "#/$defs/run_options"
+            "$ref": "#/$defs/pipeline_options"
         },
         {
             "$ref": "#/$defs/reference_genome_options"
+        },
+        {
+            "$ref": "#/$defs/classification_databases"
         },
         {
             "$ref": "#/$defs/institutional_config_options"

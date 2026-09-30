@@ -52,11 +52,21 @@ workflow NFCORE_HGTSEQ {
     //
     HGTSEQ (
         samplesheet,
+        params.fasta,
+        params.gff,
+        params.aligner == 'bwa-mem2' ? params.bwamem2index : params.bwaindex,
+        params.aligner,
+        params.krakendb,
+        params.kronadb,
+        params.taxonomy_id,
+        params.istest,
+        params.multiqc_runkraken,
         params.multiqc_config,
         params.multiqc_logo,
         params.multiqc_methods_description,
         params.outdir,
     )
+
     emit:
     multiqc_report = HGTSEQ.out.multiqc_report // channel: /path/to/multiqc_report.html
 }

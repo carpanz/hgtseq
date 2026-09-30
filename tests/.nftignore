@@ -5,8 +5,14 @@ multiqc/multiqc_data/multiqc.log
 multiqc/multiqc_data/multiqc_data.json
 multiqc/multiqc_data/multiqc_sources.txt
 multiqc/multiqc_data/multiqc_software_versions.txt
+multiqc/multiqc_data/multiqc_qualimap_bamqc_genome_results.txt
 multiqc/multiqc_data/llms-full.txt
 multiqc/multiqc_plots/{svg,pdf,png}/*.{svg,pdf,png}
 multiqc/multiqc_report.html
-fastqc/*_fastqc.{html,zip}
 pipeline_info/*.{html,json,txt,yml}
+QC/fastqc_{raw,trimmed}/*_fastqc.{html,zip}
+QC/qualimap/**
+preprocess/trimming/*_trimming_report.{txt,json}
+preprocess/**/*.{bam,fq.gz,fastq.gz}
+results/kronaplots/**/*.html
+results/analysis_report/*
