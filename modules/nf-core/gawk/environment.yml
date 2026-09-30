@@ -4,5 +4,4 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - bioconda::krona=2.8.1
-  - conda-forge::make=4.4.1
+  - conda-forge::gawk=5.3.1
