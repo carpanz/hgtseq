@@ -1,0 +1,132 @@
+name: "ranalysis"
+description: Render the RMarkdown analysis report of the reads classified by Kraken2 and of the candidate integration sites
+keywords:
+  - report
+  - rmarkdown
+  - horizontal gene transfer
+  - integration sites
+tools:
+  - "rmarkdown":
+      description: "Dynamic documents for R"
+      homepage: "https://rmarkdown.rstudio.com"
+      documentation: "https://rmarkdown.rstudio.com/docs/"
+      licence: ["GPL-3.0-only"]
+      identifier: ""
+  - "ggbio":
+      description: "Visualization tools for genomic data"
+      homepage: "https://bioconductor.org/packages/ggbio/"
+      documentation: "https://bioconductor.org/packages/ggbio/"
+      doi: "10.1186/gb-2012-13-8-r77"
+      licence: ["Artistic-2.0"]
+      identifier: "biotools:ggbio"
+input:
+  - classified_reads_single:
+      type: file
+      description: Kraken2 read assignments of the reads unmapped with a mapped mate, for all the samples
+      pattern: "*.kraken2.classifiedreads.txt"
+      ontologies: []
+  - classified_reads_both:
+      type: file
+      description: Kraken2 read assignments of the pairs with both mates unmapped, for all the samples
+      pattern: "*.kraken2.classifiedreads.txt"
+      ontologies: []
+  - integration_sites:
+      type: file
+      description: Candidate integration sites of all the samples
+      pattern: "*_parsed_integration_sites.txt"
+      ontologies: []
+  - sampleids:
+      type: list
+      description: Identifiers of the samples
+  - markdownfile:
+      type: file
+      description: RMarkdown template of the analysis report
+      pattern: "*.Rmd"
+      ontologies: []
+  - istest:
+      type: boolean
+      description: Whether the pipeline runs on test data
+  - taxonomy_id:
+      type: integer
+      description: NCBI taxonomy ID of the host organism
+output:
+  report:
+    - analysis_report.html:
+        type: file
+        description: HTML analysis report
+        pattern: "analysis_report.html"
+        ontologies: []
+  rdata:
+    - analysis_report.RData:
+        type: file
+        description: R workspace with the data used to generate the report
+        pattern: "analysis_report.RData"
+        ontologies: []
+  versions_r:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - r-base:
+          type: string
+          description: The name of the tool
+      - Rscript -e 'cat(as.character(getRversion()))':
+          type: eval
+          description: The expression to obtain the version of the tool
+  versions_ggbio:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - bioconductor-ggbio:
+          type: string
+          description: The name of the tool
+      - Rscript -e "cat(as.character(packageVersion('ggbio')))":
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - r-base:
+          type: string
+          description: The name of the tool
+      - Rscript -e 'cat(as.character(getRversion()))':
+          type: eval
+          description: The expression to obtain the version of the tool
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - bioconductor-ggbio:
+          type: string
+          description: The name of the tool
+      - Rscript -e "cat(as.character(packageVersion('ggbio')))":
+          type: eval
+          description: The expression to obtain the version of the tool
+authors:
+  - "@carpanz"
+  - "@lescai"
+maintainers:
+  - "@carpanz"
+  - "@lescai"
+containers:
+  docker:
+    linux/amd64:
+      name: community.wave.seqera.io/library/bioconductor-biovizbase_bioconductor-genomeinfodb_bioconductor-genomicranges_bioconductor-ggbio_pruned:baa766c046284ca8
+      build_id: bd-baa766c046284ca8_1
+      scan_id: sc-5ca6c5a6c68431ae_1
+    linux/arm64:
+      name: community.wave.seqera.io/library/bioconductor-biovizbase_bioconductor-genomeinfodb_bioconductor-genomicranges_bioconductor-ggbio_pruned:236132cfce703864
+      build_id: bd-236132cfce703864_1
+      scan_id: sc-07a941f722181298_1
+  singularity:
+    linux/arm64:
+      name: oras://community.wave.seqera.io/library/bioconductor-biovizbase_bioconductor-genomeinfodb_bioconductor-genomicranges_bioconductor-ggbio_pruned:e082a5465b761264
+      build_id: bd-e082a5465b761264_1
+      https: https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/d1/d1f2d5fb44134b56e46ed3ead76cf14991e0fa77954271300009340d611ee61d/data
+    linux/amd64:
+      name: oras://community.wave.seqera.io/library/bioconductor-biovizbase_bioconductor-genomeinfodb_bioconductor-genomicranges_bioconductor-ggbio_pruned:ae3c784ae6516d6f
+      build_id: bd-ae3c784ae6516d6f_1
+      https: https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/83/8309ae0799cf8625166500cc634dae1212101f93583ebc0a49898b9fcfc6c256/data
+  conda:
+    linux/amd64:
+      lock_file: modules/local/ranalysis/.conda-lock/linux_amd64-bd-baa766c046284ca8_1.txt

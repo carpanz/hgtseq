@@ -10,65 +10,67 @@
 
 ## Topic introduction
 
-The pipeline accepts either a FASTQ with raw paired-end reads from Illumina sequencing as input, or an already aligned paired-end BAM file. Raw reads are first trimmed for quality and Illumina adapters: the resulting high quality reads are aligned to the host genome, which is defined by its identifier in the iGenomes repository for seamless download, and via NCBI taxonomic identifier. Pre-aligned BAM files are then processed in parallel to extract 2 categories of reads, via their SAM bitwise flags. With bitwise flag 13, we extract reads classified as paired, which are unmapped and whose mate is also unmapped (i.e. both mates unmapped). With bitwise flag 5 we extract reads classified as paired, which are unmapped but whose mate is mapped (i.e. only one mate unmapped in a pair). In both cases we use flag 256 to exclude non-primary alignments. Both categories are classified using kraken2.
+The pipeline accepts either raw paired-end reads from Illumina sequencing, as FastQ files, or already aligned paired-end BAM files. Raw reads are first trimmed for quality and Illumina adapters: the resulting high quality reads are aligned to the host genome, which can be defined by its identifier in the iGenomes repository for seamless download. The aligned BAM files are then processed in parallel to extract 2 categories of reads, via their SAM bitwise flags. With bitwise flag 13, we extract reads classified as paired, which are unmapped and whose mate is also unmapped (i.e. both mates unmapped). With bitwise flag 5, excluding flag 8, we extract reads classified as paired, which are unmapped but whose mate is mapped (i.e. only one mate unmapped in a pair). In both cases we use flag 256 to exclude non-primary alignments. Both categories are classified using Kraken2.
 
-The second category, i.e. unmapped reads whose mate is mapped, provide the opportunity to infer the potential genomic location of an integration event, if confirmed, by using the information available for the properly mapped mate in the pair: for this category of reads, the pipeline parses the genomic coordinates of the mate from the BAM file, and merges them with the unmapped reads classified by kraken2. Finally, host-classified reads are filtered out and the data are used to generate krona plots and an HTML report with RMarkdown.
+The second category, i.e. unmapped reads whose mate is mapped, provides the opportunity to infer the potential genomic location of an integration event, if confirmed, by using the information available for the properly mapped mate in the pair: for this category of reads, the pipeline parses the genomic coordinates of the mate from the BAM file, and merges them with the unmapped reads classified by Kraken2. Finally, host-classified reads are filtered out and the data are used to generate Krona plots and an HTML report with RMarkdown.
 
-## Input Formats
+## Samplesheet input
 
-The input file can have at least two or three columns according to the format of reads used, i.e. two columns for BAM files and three for FASTQ files (as defined in the tables below).
+You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with a header row, as shown in the examples below.
 
-### FASTQ
-
-The FASTQ file extension can be either _fastq.gz_ or _fastq_.
-
-```console
-sample,input1,input2
-testsample01,/path/to/file1_1.fastq.gz,/path/to/file1_2.fastq.gz
-testsample02,/path/to/file2_1.fastq.gz,/path/to/file2_2.fastq.gz
-testsample03,/path/to/file3_1.fastq.gz,/path/to/file3_2.fastq.gz
+```bash
+--input '[path to samplesheet file]'
 ```
 
-| Column   | Description                                                                                                                                                                            |
-| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sample` | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
-| `input1` | Full path to FastQ file for Illumina short reads 1. File can be either _fastq.gz_ or _fastq_.                                                                                          |
-| `input2` | Full path to FastQ file for Illumina short reads 2. File can be either _fastq.gz_ or _fastq_.                                                                                          |
+Each sample can be provided either as a pair of FastQ files, or as an aligned BAM file. Both types of samples can be mixed in the same samplesheet: in that case the header must contain all the columns, and the columns that do not apply to a sample are left empty. Sample names must be unique.
 
-An [example samplesheet](../assets/samplesheet_fastq.csv) has been provided with the pipeline.
+### FastQ
+
+```csv title="samplesheet.csv"
+sample,fastq_1,fastq_2
+SAMPLE1,/path/to/sample1_R1.fastq.gz,/path/to/sample1_R2.fastq.gz
+SAMPLE2,/path/to/sample2_R1.fastq.gz,/path/to/sample2_R2.fastq.gz
+```
+
+| Column    | Description                                                                                                                  |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `sample`  | Custom sample name. It must be unique and cannot contain spaces.                                                             |
+| `fastq_1` | Full path to the FastQ file of the Illumina short reads 1. The file must be gzipped, with extension `.fastq.gz` or `.fq.gz`. |
+| `fastq_2` | Full path to the FastQ file of the Illumina short reads 2. The file must be gzipped, with extension `.fastq.gz` or `.fq.gz`. |
+
+The reads are aligned to the reference genome provided with `--genome` or `--fasta`, which is therefore required for FastQ samples. An [example samplesheet](../assets/samplesheet_fastq.csv) has been provided with the pipeline.
 
 ### BAM
 
-```console
-sample,input1
-testsample01,/path/to/file1.bam
-testsample02,/path/to/file2.bam
-testsample03,/path/to/file3.bam
+```csv title="samplesheet.csv"
+sample,bam
+SAMPLE3,/path/to/sample3.bam
+SAMPLE4,/path/to/sample4.bam
 ```
 
-| Column   | Description                                                                                                                                                                            |
-| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sample` | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
-| `input1` | Full path to aligned BAM file.                                                                                                                                                         |
+| Column   | Description                                                                          |
+| -------- | ------------------------------------------------------------------------------------ |
+| `sample` | Custom sample name. It must be unique and cannot contain spaces.                     |
+| `bam`    | Full path to a BAM file with paired-end reads, aligned to the host reference genome. |
 
-An [example samplesheet](../assets/samplesheet_bam.csv) has been provided with the pipeline.
+The BAM files are sorted and indexed by the pipeline before the extraction of the unmapped reads. An [example samplesheet](../assets/samplesheet_bam.csv) has been provided with the pipeline.
 
 ## Running the pipeline
 
 The typical command for running the pipeline is as follows:
 
-```console
+```bash
 nextflow run nf-core/hgtseq \
--profile <singularity,docker,conda> \
---input samplesheet.csv \
---outdir <OUTDIR> \
---genome GRCh38 \
---taxonomy_id <TAXID> \
---krakendb /path/to/kraken_db \
---kronadb /path/to/krona_db/taxonomy.tab
+    -profile <docker/singularity/.../institute> \
+    --input samplesheet.csv \
+    --outdir <OUTDIR> \
+    --genome GRCh38 \
+    --taxonomy_id 9606 \
+    --krakendb /path/to/kraken2_db \
+    --kronadb /path/to/krona/taxonomy.tab
 ```
 
-This will launch the pipeline with the `singularity`, `docker` or `conda` configuration profile. See below for more information about profiles.
+This will launch the pipeline with the `docker` or `singularity` configuration profile. See below for more information about profiles.
 
 Note that the pipeline will create the following files in your working directory:
 
@@ -83,20 +85,21 @@ If you wish to repeatedly use the same parameters for multiple runs, rather than
 
 Pipeline settings can be provided in a `yaml` or `json` file via `-params-file <file>`.
 
-> ⚠️ Do not use `-c <file>` to specify parameters as this will result in errors. Custom config files specified with `-c` must only be used for [tuning process resource specifications](https://nf-co.re/docs/usage/configuration#tuning-workflow-resources), other infrastructural tweaks (such as output directories), or module arguments (args).
-> The above pipeline run specified with a params file in yaml format:
+> [!WARNING]
+> Do not use `-c <file>` to specify parameters as this will result in errors. Custom config files specified with `-c` must only be used for [tuning process resource specifications](https://nf-co.re/docs/running/run-pipelines#configuring-pipelines), other infrastructural tweaks (such as output directories), or module arguments (args).
+
+The above pipeline run specified with a params file in yaml format:
 
 ```bash
 nextflow run nf-core/hgtseq -profile docker -params-file params.yaml
 ```
 
-with `params.yaml` containing:
+with:
 
-```yaml
+```yaml title="params.yaml"
 input: './samplesheet.csv'
 outdir: './results/'
-genome: 'GRCh37'
-input: 'data'
+genome: 'GRCh38'
 <...>
 ```
 
@@ -112,41 +115,45 @@ nextflow pull nf-core/hgtseq
 
 ### Reproducibility
 
-It is a good idea to specify a pipeline version when running the pipeline on your data. This ensures that a specific version of the pipeline code and software are used when you run your pipeline. If you keep using the same tag, you'll be running the same version of the pipeline, even if there have been changes to the code since.
+It is a good idea to specify the pipeline version when running the pipeline on your data. This ensures that a specific version of the pipeline code and software are used when you run your pipeline. If you keep using the same tag, you'll be running the same version of the pipeline, even if there have been changes to the code since.
 
 First, go to the [nf-core/hgtseq releases page](https://github.com/nf-core/hgtseq/releases) and find the latest pipeline version - numeric only (eg. `1.3.1`). Then specify this when running the pipeline with `-r` (one hyphen) - eg. `-r 1.3.1`. Of course, you can switch to another version by changing the number after the `-r` flag.
 
 This version number will be logged in reports when you run the pipeline, so that you'll know what you used when you look back in the future. For example, at the bottom of the MultiQC reports.
 
-To further assist in reproducbility, you can use share and re-use [parameter files](#running-the-pipeline) to repeat pipeline runs with the same settings without having to write out a command with every single parameter.
+To further assist in reproducibility, you can use share and reuse [parameter files](#running-the-pipeline) to repeat pipeline runs with the same settings without having to write out a command with every single parameter.
 
-> 💡 If you wish to share such profile (such as upload as supplementary material for academic publications), make sure to NOT include cluster specific paths to files, nor institutional specific profiles.
+> [!TIP]
+> If you wish to share such profile (such as upload as supplementary material for academic publications), make sure to NOT include cluster specific paths to files, nor institutional specific profiles.
 
 ## Pipeline arguments
 
-> **NB:** These options are user-specific and use a _double_ hyphen.
-
-Please note that, in addition to the classic parameters such as `--input` and `--outdir`, the pipeline requires other specific parameters.
+In addition to `--input` and `--outdir`, the pipeline requires a few specific parameters. The full list of parameters is available in the [parameter documentation](https://nf-co.re/hgtseq/parameters).
 
 ### `--genome`
 
-The user must specify the genome of interest. A list of genomes is available in the pipeline under the folder conf/igenomes.config, that contains illumina iGenomes reference file paths. This follows [nf-core guidelines](https://nf-co.re/usage/reference_genomes) for reference management, and sets all necessary parameters (like fasta, gtf, bwa). The user is recommended to primarily use the _genome_ parameter, and can follow instructions at [this](https://nf-co.re/usage/reference_genomes#adding-paths-to-a-config-file) page to add genomes not currently included in the repository. All parameters set automatically as a consequence, though hidden, can be accessed by the user at command line should they wish a finer control.
+The reference genome of the host can be selected with `--genome`, among the ones listed in `conf/igenomes.config`, which contains the paths to the [Illumina iGenomes](https://support.illumina.com/sequencing/sequencing_software/igenome.html) reference files. This follows the [nf-core guidelines](https://nf-co.re/docs/running/reference_genomes) for reference management, and sets automatically the FASTA (`--fasta`), the annotation (`--gff`) and the aligner indices (`--bwaindex` and `--bwamem2index`). These hidden parameters can also be provided directly at the command line, for a finer control or to use a genome that is not available in iGenomes. When the aligner index is not available, it is built from the FASTA file.
+
+### `--aligner`
+
+The FastQ reads are aligned with BWA-MEM (`bwa-mem`, default) or BWA-MEM2 (`bwa-mem2`).
 
 ### `--taxonomy_id`
 
-Since the code in the report is executed differently based on the taxonomy id of the analyzed species, the user must enter it in the command line (must be taken from the Taxonomy Database of NCBI).
+Since the code in the report is executed differently based on the taxonomy ID of the analysed species, the NCBI [Taxonomy](https://www.ncbi.nlm.nih.gov/taxonomy) ID of the host must be provided (e.g. `9606` for _Homo sapiens_).
 
 ### `--krakendb`
 
-User must provide a Kraken2 database in order to perform the classification. Can optionally be in a `.tar.gz` archive.
+A Kraken2 database is required to classify the unmapped reads. It can be provided as a directory, or as a `.tar.gz` archive that is extracted by the pipeline. Pre-built databases can be downloaded from the [Kraken2 index zone](https://benlangmead.github.io/aws-indexes/k2).
 
 ### `--kronadb`
 
-User must also provide a Krona database in order to generate interactive pie charts with Kronatools. Can optionally be in a `.tar.gz` archive.
+A Krona taxonomy file (`taxonomy.tab`) is required to generate the interactive Krona plots. It can be provided directly, or as a `.tar.gz` archive that is extracted by the pipeline.
 
 ## Core Nextflow arguments
 
-> **NB:** These options are part of Nextflow and use a _single_ hyphen (pipeline parameters use a double-hyphen).
+> [!NOTE]
+> These options are part of Nextflow and use a _single_ hyphen (pipeline parameters use a double-hyphen)
 
 ### `-profile`
 
@@ -154,14 +161,15 @@ Use this parameter to choose a configuration profile. Profiles can give configur
 
 Several generic profiles are bundled with the pipeline which instruct the pipeline to use software packaged using different methods (Docker, Singularity, Podman, Shifter, Charliecloud, Apptainer, Conda) - see below.
 
+> [!IMPORTANT]
 > We highly recommend the use of Docker or Singularity containers for full pipeline reproducibility, however when this is not possible, Conda is also supported.
 
-The pipeline also dynamically loads configurations from [https://github.com/nf-core/configs](https://github.com/nf-core/configs) when it runs, making multiple config profiles for various institutional clusters available at run time. For more information and to see if your system is available in these configs please see the [nf-core/configs documentation](https://github.com/nf-core/configs#documentation).
+The pipeline also dynamically loads configurations from [https://github.com/nf-core/configs](https://github.com/nf-core/configs) when it runs, making multiple config profiles for various institutional clusters available at run time. For more information and to check if your system is supported, please see the [nf-core/configs documentation](https://github.com/nf-core/configs#documentation).
 
 Note that multiple profiles can be loaded, for example: `-profile test,docker` - the order of arguments is important!
 They are loaded in sequence, so later profiles can overwrite earlier profiles.
 
-If `-profile` is not specified, the pipeline will run locally and expect all software to be installed and available on the `PATH`. This is _not_ recommended, since it can lead to different results on different machines dependent on the computer enviroment.
+If `-profile` is not specified, the pipeline will run locally and expect all software to be installed and available on the `PATH`. This is _not_ recommended, since it can lead to different results on different machines dependent on the computer environment.
 
 - `test`
   - A profile with a complete configuration for automated testing
@@ -175,9 +183,11 @@ If `-profile` is not specified, the pipeline will run locally and expect all sof
 - `shifter`
   - A generic configuration profile to be used with [Shifter](https://nersc.gitlab.io/development/shifter/how-to-use/)
 - `charliecloud`
-  - A generic configuration profile to be used with [Charliecloud](https://hpc.github.io/charliecloud/)
+  - A generic configuration profile to be used with [Charliecloud](https://charliecloud.io/)
 - `apptainer`
   - A generic configuration profile to be used with [Apptainer](https://apptainer.org/)
+- `wave`
+  - A generic configuration profile to enable [Wave](https://seqera.io/wave/) containers. Use together with one of the above (requires Nextflow `24.03.0-edge` or later).
 - `conda`
   - A generic configuration profile to be used with [Conda](https://conda.io/docs/). Please only use Conda as a last resort i.e. when it's not possible to run the pipeline with Docker, Singularity, Podman, Shifter, Charliecloud, or Apptainer.
 
@@ -195,21 +205,21 @@ Specify the path to a specific config file (this is a core Nextflow command). Se
 
 ### Resource requests
 
-Whilst the default requirements set within the pipeline will hopefully work for most people and with most input data, you may find that you want to customise the compute resources that the pipeline requests. Each step in the pipeline has a default set of requirements for number of CPUs, memory and time. For most of the steps in the pipeline, if the job exits with any of the error codes specified [here](https://github.com/nf-core/rnaseq/blob/4c27ef5610c87db00c3c5a3eed10b1d161abf575/conf/base.config#L18) it will automatically be resubmitted with higher requests (2 x original, then 3 x original). If it still fails after the third attempt then the pipeline execution is stopped.
+Whilst the default requirements set within the pipeline will hopefully work for most people and with most input data, you may find that you want to customise the compute resources that the pipeline requests. Each step in the pipeline has a default set of requirements for number of CPUs, memory and time. For most of the pipeline steps, if the job exits with any of the error codes specified [here](https://github.com/nf-core/rnaseq/blob/4c27ef5610c87db00c3c5a3eed10b1d161abf575/conf/base.config#L18) it will automatically be resubmitted with higher resources request (2 x original, then 3 x original). If it still fails after the third attempt then the pipeline execution is stopped.
 
-To change the resource requests, please see the [max resources](https://nf-co.re/docs/usage/configuration#max-resources) and [tuning workflow resources](https://nf-co.re/docs/usage/configuration#tuning-workflow-resources) section of the nf-core website.
+To change the resource requests, please see the [max resources](https://nf-co.re/docs/running/configuration/nextflow-for-your-system#set-max-resources) and [customise process resources](https://nf-co.re/docs/running/configuration/nextflow-for-your-system#customize-process-resources) section of the nf-core website.
 
 ### Custom Containers
 
-In some cases you may wish to change which container or conda environment a step of the pipeline uses for a particular tool. By default nf-core pipelines use containers and software from the [biocontainers](https://biocontainers.pro/) or [bioconda](https://bioconda.github.io/) projects. However in some cases the pipeline specified version maybe out of date.
+In some cases, you may wish to change the container or conda environment used by a pipeline steps for a particular tool. By default, nf-core pipelines use containers and software from the [biocontainers](https://biocontainers.pro/) or [bioconda](https://bioconda.github.io/) projects. However, in some cases the pipeline specified version maybe out of date.
 
-To use a different container from the default container or conda environment specified in a pipeline, please see the [updating tool versions](https://nf-co.re/docs/usage/configuration#updating-tool-versions) section of the nf-core website.
+To use a different container from the default container or conda environment specified in a pipeline, please see the [updating tool versions](https://nf-co.re/docs/running/configuration/nextflow-for-your-system#update-tool-versions) section of the nf-core website.
 
 ### Custom Tool Arguments
 
 A pipeline might not always support every possible argument or option of a particular tool used in pipeline. Fortunately, nf-core pipelines provide some freedom to users to insert additional parameters that the pipeline does not include by default.
 
-To learn how to provide additional arguments to a particular tool of the pipeline, please see the [customising tool arguments](https://nf-co.re/docs/usage/configuration#customising-tool-arguments) section of the nf-core website.
+To learn how to provide additional arguments to a particular tool of the pipeline, please see the [customising tool arguments](https://nf-co.re/docs/running/configuration/nextflow-for-your-system#modifying-tool-arguments) section of the nf-core website.
 
 ### nf-core/configs
 
@@ -218,14 +228,6 @@ In most cases, you will only need to create a custom config as a one-off but if 
 See the main [Nextflow documentation](https://www.nextflow.io/docs/latest/config.html) for more information about creating your own configuration files.
 
 If you have any questions or issues please send us a message on [Slack](https://nf-co.re/join/slack) on the [`#configs` channel](https://nfcore.slack.com/channels/configs).
-
-## Azure Resource Requests
-
-To be used with the `azurebatch` profile by specifying the `-profile azurebatch`.
-We recommend providing a compute `params.vm_type` of `Standard_D16_v3` VMs by default but these options can be changed if required.
-
-Note that the choice of VM size depends on your quota and the overall workload during the analysis.
-For a thorough list, please refer the [Azure Sizes for virtual machines in Azure](https://docs.microsoft.com/en-us/azure/virtual-machines/sizes).
 
 ## Running in the background
 
@@ -247,6 +249,5 @@ NXF_OPTS='-Xms1g -Xmx4g'
 
 ## Limitations
 
-- Our local module `ranalysis` execute the circular plot in the html report only if human data is used (i.e. `--taxonomy_id 9606`, mandatory parameter explained above)
-- If using `conda` as profile, hgtseq pipeline runs without executing `ranalysis` module due to a container conflict.
-- `Kraken2` used for taxonomic classification requires lot of memory (~100GB). So we plan to implement `Clark` in a future release.
+- The circular plot of the candidate integration sites in the HTML analysis report is only generated for human data (i.e. `--taxonomy_id 9606`).
+- Kraken2 loads the whole database in memory: the standard database requires ~100GB of memory, while smaller [pre-built databases](https://benlangmead.github.io/aws-indexes/k2) can be used on machines with less memory.

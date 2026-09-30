@@ -1,25 +1,26 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://raw.githubusercontent.com/nf-core/hgtseq/master/nextflow_schema.json",
     "title": "nf-core/hgtseq pipeline parameters",
     "description": "A pipeline to investigate horizontal gene transfer from NGS data",
     "type": "object",
-    "definitions": {
+    "$defs": {
         "input_output_options": {
             "title": "Input/output options",
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
-            "required": ["input", "outdir", "taxonomy_id"],
+            "required": ["input", "outdir"],
             "properties": {
                 "input": {
                     "type": "string",
                     "format": "file-path",
+                    "exists": true,
+                    "schema": "assets/schema_input.json",
                     "mimetype": "text/csv",
                     "pattern": "^\\S+\\.csv$",
-                    "schema": "assets/schema_input.json",
                     "description": "Path to comma-separated file containing information about the samples in the experiment.",
-                    "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row. See [usage docs](https://nf-co.re/hgtseq/usage#samplesheet-input).",
+                    "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with a header row and either 3 columns (`sample,fastq_1,fastq_2`) for paired-end FastQ files, or 2 columns (`sample,bam`) for aligned BAM files. See [usage docs](https://nf-co.re/hgtseq/usage#samplesheet-input).",
                     "fa_icon": "fas fa-file-csv"
                 },
                 "outdir": {
@@ -39,39 +40,42 @@
                     "type": "string",
                     "description": "MultiQC report title. Printed as page header, used for filename if not otherwise specified.",
                     "fa_icon": "fas fa-file-signature"
-                },
-                "isbam": {
-                    "type": "boolean",
-                    "description": "Indicates if input files are BAMs: if not, FASTQ files are assumed and alignment is run"
-                },
-                "istest": {
-                    "type": "boolean",
-                    "hidden": true,
-                    "description": "Defines if pipeline is running a test or using full scale inputs"
-                },
-                "taxonomy_id": {
-                    "type": "number",
-                    "description": "TaxID of samples used as input"
                 }
             }
         },
-        "run_options": {
-            "title": "Run options",
+        "pipeline_options": {
+            "title": "Pipeline options",
             "type": "object",
-            "description": "",
-            "default": "",
+            "fa_icon": "fas fa-cogs",
+            "description": "Options controlling the alignment and the analysis report.",
+            "required": ["taxonomy_id"],
             "properties": {
                 "aligner": {
                     "type": "string",
                     "default": "bwa-mem",
-                    "description": "Choose if aligner should be bwa-mem or bwa-mem2",
-                    "enum": ["bwa-mem", "bwa-mem2"]
+                    "enum": ["bwa-mem", "bwa-mem2"],
+                    "fa_icon": "fas fa-align-center",
+                    "description": "Aligner used to map the FastQ reads to the host reference genome.",
+                    "help_text": "Only used for samples provided as FastQ files. BAM files are used as they are."
+                },
+                "taxonomy_id": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-sitemap",
+                    "description": "NCBI taxonomy ID of the host organism (e.g. 9606 for human).",
+                    "help_text": "The analysis report draws the host-specific plots, such as the circos plot of the candidate integration sites, only when this is set to 9606 (_Homo sapiens_)."
+                },
+                "istest": {
+                    "type": "boolean",
+                    "hidden": true,
+                    "fa_icon": "fas fa-vial",
+                    "description": "Whether the pipeline is run on the test data: some sections of the analysis report are skipped."
                 },
                 "multiqc_runkraken": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Choose if multiqc has data to add kraken to report",
-                    "hidden": true
+                    "hidden": true,
+                    "fa_icon": "fas fa-chart-bar",
+                    "description": "Include the Kraken2 classification reports in the MultiQC report."
                 }
             }
         },
@@ -90,20 +94,36 @@
                 "fasta": {
                     "type": "string",
                     "format": "file-path",
+                    "exists": true,
                     "mimetype": "text/plain",
                     "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
                     "description": "Path to FASTA genome file.",
-                    "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have a BWA index available this will be generated for you automatically. Combine with `--save_reference` to save BWA index for future runs.",
-                    "fa_icon": "far fa-file-code",
-                    "hidden": true
+                    "help_text": "Required to align the reads of the samples provided as FastQ files. It is set automatically when using `--genome`.",
+                    "fa_icon": "far fa-file-code"
                 },
-                "igenomes_base": {
+                "gff": {
                     "type": "string",
-                    "format": "directory-path",
-                    "description": "Directory / URL base for iGenomes references.",
-                    "default": "s3://ngi-igenomes/igenomes",
-                    "fa_icon": "fas fa-cloud-download-alt",
-                    "hidden": true
+                    "format": "file-path",
+                    "exists": true,
+                    "mimetype": "text/plain",
+                    "fa_icon": "fas fa-file-alt",
+                    "hidden": true,
+                    "description": "Path to GFF/GTF annotation file, used by Qualimap to restrict the alignment QC to the annotated regions.",
+                    "help_text": "It is set automatically when using `--genome`."
+                },
+                "bwaindex": {
+                    "type": "string",
+                    "fa_icon": "fas fa-bezier-curve",
+                    "hidden": true,
+                    "description": "Path to a directory containing a pre-built BWA-MEM index.",
+                    "help_text": "If not provided, the index is built from the FASTA file. It is set automatically when using `--genome`."
+                },
+                "bwamem2index": {
+                    "type": "string",
+                    "fa_icon": "fas fa-bezier-curve",
+                    "hidden": true,
+                    "description": "Path to a directory containing a pre-built BWA-MEM2 index.",
+                    "help_text": "If not provided, the index is built from the FASTA file. It is set automatically when using `--genome`."
                 },
                 "igenomes_ignore": {
                     "type": "boolean",
@@ -112,38 +132,34 @@
                     "hidden": true,
                     "help_text": "Do not load `igenomes.config` when running the pipeline. You may choose this option if you observe clashes between custom parameters and those supplied in `igenomes.config`."
                 },
+                "igenomes_base": {
+                    "type": "string",
+                    "description": "The base path to the igenomes reference files",
+                    "fa_icon": "fas fa-ban",
+                    "hidden": true,
+                    "default": "s3://ngi-igenomes/igenomes/"
+                }
+            }
+        },
+        "classification_databases": {
+            "title": "Classification databases",
+            "type": "object",
+            "fa_icon": "fas fa-database",
+            "description": "Databases used for the taxonomic classification of the unmapped reads.",
+            "required": ["krakendb", "kronadb"],
+            "properties": {
                 "krakendb": {
                     "type": "string",
-                    "default": "None",
-                    "description": "A local path to kraken database folder or compressed database file, or a URL to a compressed database file, in tar.gz format"
+                    "fa_icon": "fas fa-database",
+                    "description": "Path to the Kraken2 database, either a directory or a `.tar.gz` archive (local path or URL).",
+                    "help_text": "Pre-built Kraken2 databases can be downloaded from https://benlangmead.github.io/aws-indexes/k2."
                 },
                 "kronadb": {
                     "type": "string",
-                    "default": "None",
-                    "description": "A local path or a URL to a .tab krona taxonomy file; it can also receive a compressed .tab file in tar.gz format"
-                },
-                "gff": {
-                    "type": "string",
-                    "format": "file-path",
-                    "mimetype": "text/plain",
-                    "description": "Path to GFF/GTF annotation file.",
-                    "help_text": "This parameter is *mandatory* if `--genome` is not specified.",
-                    "hidden": true
-                },
-                "bwaindex": {
-                    "type": "string",
-                    "default": "None",
-                    "description": "Path bwa-mem indexes",
-                    "hidden": true
-                },
-                "bwamem2index": {
-                    "type": "string",
-                    "default": "None",
-                    "description": "Path bwa-mem2 indexes",
-                    "hidden": true
+                    "fa_icon": "fas fa-database",
+                    "description": "Path to the Krona taxonomy `.tab` file, or a `.tar.gz` archive containing it (local path or URL)."
                 }
-            },
-            "required": ["krakendb", "kronadb"]
+            }
         },
         "institutional_config_options": {
             "title": "Institutional config options",
@@ -193,41 +209,6 @@
                 }
             }
         },
-        "max_job_request_options": {
-            "title": "Max job request options",
-            "type": "object",
-            "fa_icon": "fab fa-acquisitions-incorporated",
-            "description": "Set the top limit for requested resources for any single job.",
-            "help_text": "If you are running on a smaller system, a pipeline step requesting more resources than are available may cause the Nextflow to stop the run with an error. These options allow you to cap the maximum resources requested by any single job so that the pipeline will run on your system.\n\nNote that you can not _increase_ the resources requested by any job using these options. For that you will need your own configuration file. See [the nf-core website](https://nf-co.re/usage/configuration) for details.",
-            "properties": {
-                "max_cpus": {
-                    "type": "integer",
-                    "description": "Maximum number of CPUs that can be requested for any single job.",
-                    "default": 16,
-                    "fa_icon": "fas fa-microchip",
-                    "hidden": true,
-                    "help_text": "Use to set an upper-limit for the CPU requirement for each process. Should be an integer e.g. `--max_cpus 1`"
-                },
-                "max_memory": {
-                    "type": "string",
-                    "description": "Maximum amount of memory that can be requested for any single job.",
-                    "default": "128.GB",
-                    "fa_icon": "fas fa-memory",
-                    "pattern": "^\\d+(\\.\\d+)?\\.?\\s*(K|M|G|T)?B$",
-                    "hidden": true,
-                    "help_text": "Use to set an upper-limit for the memory requirement for each process. Should be a string in the format integer-unit e.g. `--max_memory '8.GB'`"
-                },
-                "max_time": {
-                    "type": "string",
-                    "description": "Maximum amount of time that can be requested for any single job.",
-                    "default": "240.h",
-                    "fa_icon": "far fa-clock",
-                    "pattern": "^(\\d+\\.?\\s*(s|m|h|day)\\s*)+$",
-                    "hidden": true,
-                    "help_text": "Use to set an upper-limit for the time requirement for each process. Should be a string in the format integer-unit e.g. `--max_time '2.h'`"
-                }
-            }
-        },
         "generic_options": {
             "title": "Generic options",
             "type": "object",
@@ -235,12 +216,6 @@
             "description": "Less common options for the pipeline, typically set in a config file.",
             "help_text": "These options are common to all nf-core pipelines and allow you to customise some of the core preferences for how the pipeline runs.\n\nTypically these options would be set in a Nextflow config file loaded for all pipeline runs, such as `~/.nextflow/config`.",
             "properties": {
-                "help": {
-                    "type": "boolean",
-                    "description": "Display help text.",
-                    "fa_icon": "fas fa-question-circle",
-                    "hidden": true
-                },
                 "version": {
                     "type": "boolean",
                     "description": "Display version and exit.",
@@ -284,15 +259,9 @@
                     "fa_icon": "fas fa-palette",
                     "hidden": true
                 },
-                "hook_url": {
-                    "type": "string",
-                    "description": "Incoming hook URL for messaging service",
-                    "fa_icon": "fas fa-people-group",
-                    "help_text": "Incoming hook URL for messaging service. Currently, MS Teams and Slack are supported.",
-                    "hidden": true
-                },
                 "multiqc_config": {
                     "type": "string",
+                    "format": "file-path",
                     "description": "Custom config file to supply to MultiQC.",
                     "fa_icon": "fas fa-cog",
                     "hidden": true
@@ -308,13 +277,6 @@
                     "description": "Custom MultiQC yaml file containing HTML including a methods description.",
                     "fa_icon": "fas fa-cog"
                 },
-                "tracedir": {
-                    "type": "string",
-                    "description": "Directory to keep pipeline Nextflow logs and reports.",
-                    "default": "${params.outdir}/pipeline_info",
-                    "fa_icon": "fas fa-cogs",
-                    "hidden": true
-                },
                 "validate_params": {
                     "type": "boolean",
                     "description": "Boolean whether to validate parameters against the schema at runtime",
@@ -322,34 +284,52 @@
                     "fa_icon": "fas fa-check-square",
                     "hidden": true
                 },
-                "show_hidden_params": {
+                "pipelines_testdata_base_path": {
+                    "type": "string",
+                    "fa_icon": "far fa-check-circle",
+                    "description": "Base URL or local path to location of pipeline test dataset files",
+                    "default": "https://raw.githubusercontent.com/nf-core/test-datasets/",
+                    "hidden": true
+                },
+                "trace_report_suffix": {
+                    "type": "string",
+                    "fa_icon": "far calendar",
+                    "description": "Suffix to add to the trace report filename. Default is the date and time in the format yyyy-MM-dd_HH-mm-ss.",
+                    "hidden": true
+                },
+                "help": {
+                    "type": ["boolean", "string"],
+                    "description": "Display the help message."
+                },
+                "help_full": {
                     "type": "boolean",
-                    "fa_icon": "far fa-eye-slash",
-                    "description": "Show all params when using `--help`",
-                    "hidden": true,
-                    "help_text": "By default, parameters set as _hidden_ in the schema are not shown on the command line when a user runs with `--help`. Specifying this option will tell the pipeline to show all parameters."
+                    "description": "Display the full detailed help message."
+                },
+                "show_hidden": {
+                    "type": "boolean",
+                    "description": "Display hidden parameters in the help message (only works when --help or --help_full are provided)."
                 }
             }
         }
     },
     "allOf": [
         {
-            "$ref": "#/definitions/input_output_options"
+            "$ref": "#/$defs/input_output_options"
         },
         {
-            "$ref": "#/definitions/run_options"
+            "$ref": "#/$defs/pipeline_options"
         },
         {
-            "$ref": "#/definitions/reference_genome_options"
+            "$ref": "#/$defs/reference_genome_options"
         },
         {
-            "$ref": "#/definitions/institutional_config_options"
+            "$ref": "#/$defs/classification_databases"
         },
         {
-            "$ref": "#/definitions/max_job_request_options"
+            "$ref": "#/$defs/institutional_config_options"
         },
         {
-            "$ref": "#/definitions/generic_options"
+            "$ref": "#/$defs/generic_options"
         }
     ]
 }

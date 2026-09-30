@@ -1,0 +1,65 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "fastq_qc_trim_align"
+description: Quality control, adapter trimming and alignment of paired-end FastQ files to the host reference genome
+keywords:
+  - fastq
+  - qc
+  - trimming
+  - alignment
+components:
+  - fastqc
+  - trimgalore
+  - bwa/index
+  - bwa/mem
+  - bwamem2/index
+  - bwamem2/mem
+input:
+  - ch_reads:
+      type: file
+      description: |
+        Channel with the paired-end FastQ files
+        Structure: [ val(meta), [ path(fastq_1), path(fastq_2) ] ]
+      pattern: "*.{fastq,fq}.gz"
+  - ch_fasta:
+      type: file
+      description: |
+        Channel with the host reference genome
+        Structure: [ val(meta), path(fasta) ]
+      pattern: "*.{fa,fasta,fna}"
+  - index:
+      type: string
+      description: Path to a pre-built BWA-MEM or BWA-MEM2 index. The index is built from the reference when not provided
+  - aligner:
+      type: string
+      description: Aligner used to map the reads, either 'bwa-mem' or 'bwa-mem2'
+output:
+  - fastqc_raw:
+      type: file
+      description: |
+        FastQC zip archives of the raw reads
+        Structure: [ val(meta), path(zip) ]
+      pattern: "*.zip"
+  - fastqc_trimmed:
+      type: file
+      description: |
+        FastQC zip archives of the trimmed reads
+        Structure: [ val(meta), path(zip) ]
+      pattern: "*.zip"
+  - trimmed_reads:
+      type: file
+      description: |
+        Trimmed FastQ files
+        Structure: [ val(meta), [ path(fastq_1), path(fastq_2) ] ]
+      pattern: "*.fq.gz"
+  - bam:
+      type: file
+      description: |
+        Unsorted alignments
+        Structure: [ val(meta), path(bam) ]
+      pattern: "*.bam"
+authors:
+  - "@carpanz"
+  - "@lescai"
+maintainers:
+  - "@carpanz"
+  - "@lescai"

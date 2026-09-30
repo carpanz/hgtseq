@@ -1,0 +1,517 @@
+{
+    "-profile test - stub": {
+        "content": [
+            25,
+            {
+                "BAMTOOLS_STATS": {
+                    "bamtools": "2.5.2"
+                },
+                "BWA_INDEX": {
+                    "bwa": "0.7.19-r1273"
+                },
+                "BWA_MEM": {
+                    "bwa": "0.7.19-r1273",
+                    "samtools": "1.22.1"
+                },
+                "FASTQC_RAW": {
+                    "fastqc": "0.12.1"
+                },
+                "FASTQC_TRIMMED": {
+                    "fastqc": "0.12.1"
+                },
+                "GAWK_BOTH": {
+                    "gawk": "5.3.1"
+                },
+                "GAWK_SINGLE": {
+                    "gawk": "5.3.1"
+                },
+                "KRAKEN2_BOTH": {
+                    "kraken2": "2.1.6",
+                    "pigz": 2.8
+                },
+                "KRAKEN2_SINGLE": {
+                    "kraken2": "2.1.6",
+                    "pigz": 2.8
+                },
+                "KRONA_KTIMPORTTAXONOMY_BOTH": {
+                    "krona": "2.8.1"
+                },
+                "KRONA_KTIMPORTTAXONOMY_SINGLE": {
+                    "krona": "2.8.1"
+                },
+                "PARSE_INTEGRATION_SITES": {
+                    "samtools": 1.24
+                },
+                "QUALIMAP_BAMQC": {
+                    "qualimap": 2.3
+                },
+                "RANALYSIS": {
+                    "bioconductor-ggbio": "1.58.0",
+                    "r-base": "4.5.3"
+                },
+                "SAMTOOLS_BAMTOFASTQ_BOTH": {
+                    "samtools": 1.24
+                },
+                "SAMTOOLS_BAMTOFASTQ_SINGLE": {
+                    "samtools": 1.24
+                },
+                "SAMTOOLS_FLAGSTAT": {
+                    "samtools": 1.24
+                },
+                "SAMTOOLS_IDXSTATS": {
+                    "samtools": 1.24
+                },
+                "SAMTOOLS_SORT": {
+                    "samtools": 1.24
+                },
+                "SAMTOOLS_STATS": {
+                    "samtools": 1.24
+                },
+                "SAMTOOLS_VIEW_BOTH": {
+                    "samtools": 1.24
+                },
+                "SAMTOOLS_VIEW_SINGLE": {
+                    "samtools": 1.24
+                },
+                "TRIMGALORE": {
+                    "trimgalore": "2.3.0"
+                },
+                "UNTAR_KRAKEN2_DB": {
+                    "untar": 1.34
+                },
+                "Workflow": {
+                    "nf-core/hgtseq": "v1.2.0dev"
+                }
+            },
+            [
+                "QC",
+                "QC/bamtools",
+                "QC/bamtools/stats",
+                "QC/bamtools/stats/SAMPLE_PAIRED_END.bam.stats",
+                "QC/fastqc_raw",
+                "QC/fastqc_raw/SAMPLE_PAIRED_END.html",
+                "QC/fastqc_raw/SAMPLE_PAIRED_END.zip",
+                "QC/fastqc_trimmed",
+                "QC/fastqc_trimmed/SAMPLE_PAIRED_END.html",
+                "QC/fastqc_trimmed/SAMPLE_PAIRED_END.zip",
+                "QC/qualimap",
+                "QC/qualimap/SAMPLE_PAIRED_END",
+                "QC/qualimap/SAMPLE_PAIRED_END/css",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/agogo.css",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/ajax-loader.gif",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/basic.css",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/bgfooter.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/bgtop.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/comment-bright.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/comment-close.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/comment.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/doctools.js",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/down-pressed.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/down.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/file.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/jquery.js",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/minus.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/plus.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/pygments.css",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/qualimap_logo_small.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/report.css",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/searchtools.js",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/underscore.js",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/up-pressed.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/up.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/websupport.js",
+                "QC/qualimap/SAMPLE_PAIRED_END/genome_results.txt",
+                "QC/qualimap/SAMPLE_PAIRED_END/images_qualimapReport",
+                "QC/qualimap/SAMPLE_PAIRED_END/images_qualimapReport/genome_coverage_0to50_histogram.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/images_qualimapReport/genome_coverage_across_reference.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/images_qualimapReport/genome_coverage_histogram.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/images_qualimapReport/genome_coverage_quotes.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/images_qualimapReport/genome_gc_content_per_window.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/images_qualimapReport/genome_homopolymer_indels.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/images_qualimapReport/genome_insert_size_across_reference.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/images_qualimapReport/genome_insert_size_histogram.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/images_qualimapReport/genome_mapping_quality_across_reference.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/images_qualimapReport/genome_mapping_quality_histogram.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/images_qualimapReport/genome_reads_clipping_profile.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/images_qualimapReport/genome_reads_content_per_read_position.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/images_qualimapReport/genome_uniq_read_starts_histogram.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/qualimapReport.html",
+                "QC/qualimap/SAMPLE_PAIRED_END/raw_data_qualimapReport",
+                "QC/qualimap/SAMPLE_PAIRED_END/raw_data_qualimapReport/coverage_across_reference.txt",
+                "QC/qualimap/SAMPLE_PAIRED_END/raw_data_qualimapReport/coverage_histogram.txt",
+                "QC/qualimap/SAMPLE_PAIRED_END/raw_data_qualimapReport/duplication_rate_histogram.txt",
+                "QC/qualimap/SAMPLE_PAIRED_END/raw_data_qualimapReport/genome_fraction_coverage.txt",
+                "QC/qualimap/SAMPLE_PAIRED_END/raw_data_qualimapReport/homopolymer_indels.txt",
+                "QC/qualimap/SAMPLE_PAIRED_END/raw_data_qualimapReport/insert_size_across_reference.txt",
+                "QC/qualimap/SAMPLE_PAIRED_END/raw_data_qualimapReport/insert_size_histogram.txt",
+                "QC/qualimap/SAMPLE_PAIRED_END/raw_data_qualimapReport/mapped_reads_clipping_profile.txt",
+                "QC/qualimap/SAMPLE_PAIRED_END/raw_data_qualimapReport/mapped_reads_gc-content_distribution.txt",
+                "QC/qualimap/SAMPLE_PAIRED_END/raw_data_qualimapReport/mapped_reads_nucleotide_content.txt",
+                "QC/qualimap/SAMPLE_PAIRED_END/raw_data_qualimapReport/mapping_quality_across_reference.txt",
+                "QC/qualimap/SAMPLE_PAIRED_END/raw_data_qualimapReport/mapping_quality_histogram.txt",
+                "multiqc",
+                "multiqc/multiqc_data",
+                "multiqc/multiqc_data/.stub",
+                "multiqc/multiqc_plots",
+                "multiqc/multiqc_plots/.stub",
+                "multiqc/multiqc_report.html",
+                "pipeline_info",
+                "pipeline_info/nf_core_hgtseq_software_mqc_versions.yml",
+                "preprocess",
+                "preprocess/alignment",
+                "preprocess/alignment/SAMPLE_PAIRED_END.bam",
+                "preprocess/alignment/SAMPLE_PAIRED_END.crai",
+                "preprocess/alignment/SAMPLE_PAIRED_END.csi",
+                "preprocess/alignment/SAMPLE_PAIRED_END_sorted.bam",
+                "preprocess/alignment/SAMPLE_PAIRED_END_sorted.bam.bai",
+                "preprocess/converted_reads",
+                "preprocess/converted_reads/both_unmapped",
+                "preprocess/converted_reads/both_unmapped/SAMPLE_PAIRED_END.fastq.gz",
+                "preprocess/converted_reads/parsed_integration_sites",
+                "preprocess/converted_reads/parsed_integration_sites/SAMPLE_PAIRED_END_parsed_integration_sites.txt",
+                "preprocess/converted_reads/single_unmapped",
+                "preprocess/converted_reads/single_unmapped/SAMPLE_PAIRED_END.fastq.gz",
+                "preprocess/extracted_reads",
+                "preprocess/extracted_reads/both_unmapped",
+                "preprocess/extracted_reads/both_unmapped/SAMPLE_PAIRED_END.bam",
+                "preprocess/extracted_reads/single_unmapped",
+                "preprocess/extracted_reads/single_unmapped/SAMPLE_PAIRED_END.bam",
+                "preprocess/trimming",
+                "preprocess/trimming/SAMPLE_PAIRED_END_1.fastq.gz_trimming_report.json",
+                "preprocess/trimming/SAMPLE_PAIRED_END_1.fastq.gz_trimming_report.txt",
+                "preprocess/trimming/SAMPLE_PAIRED_END_1_trimmed.fq.gz",
+                "preprocess/trimming/SAMPLE_PAIRED_END_2.fastq.gz_trimming_report.json",
+                "preprocess/trimming/SAMPLE_PAIRED_END_2.fastq.gz_trimming_report.txt",
+                "preprocess/trimming/SAMPLE_PAIRED_END_2_trimmed.fq.gz",
+                "results",
+                "results/analysis_report",
+                "results/analysis_report/analysis_report.RData",
+                "results/analysis_report/analysis_report.html",
+                "results/classified",
+                "results/classified/both_unmapped",
+                "results/classified/both_unmapped/SAMPLE_PAIRED_END.kraken2.classifiedreads.txt",
+                "results/classified/both_unmapped/SAMPLE_PAIRED_END.kraken2.report.txt",
+                "results/classified/collate_kraken",
+                "results/classified/collate_kraken/both_unmapped",
+                "results/classified/collate_kraken/both_unmapped/kraken_classified_reads_collated.txt",
+                "results/classified/collate_kraken/single_unmapped",
+                "results/classified/collate_kraken/single_unmapped/kraken_classified_reads_collated.txt",
+                "results/classified/single_unmapped",
+                "results/classified/single_unmapped/SAMPLE_PAIRED_END.kraken2.classifiedreads.txt",
+                "results/classified/single_unmapped/SAMPLE_PAIRED_END.kraken2.report.txt",
+                "results/kronaplots",
+                "results/kronaplots/both_unmapped",
+                "results/kronaplots/both_unmapped/group.html",
+                "results/kronaplots/single_unmapped",
+                "results/kronaplots/single_unmapped/group.html"
+            ],
+            [
+                "SAMPLE_PAIRED_END.bam.stats:md5,d41d8cd98f00b204e9800998ecf8427e",
+                "SAMPLE_PAIRED_END.html:md5,d41d8cd98f00b204e9800998ecf8427e",
+                "SAMPLE_PAIRED_END.zip:md5,d41d8cd98f00b204e9800998ecf8427e",
+                "SAMPLE_PAIRED_END.html:md5,d41d8cd98f00b204e9800998ecf8427e",
+                "SAMPLE_PAIRED_END.zip:md5,d41d8cd98f00b204e9800998ecf8427e",
+                ".stub:md5,d41d8cd98f00b204e9800998ecf8427e",
+                ".stub:md5,d41d8cd98f00b204e9800998ecf8427e",
+                "SAMPLE_PAIRED_END.crai:md5,d41d8cd98f00b204e9800998ecf8427e",
+                "SAMPLE_PAIRED_END.csi:md5,d41d8cd98f00b204e9800998ecf8427e",
+                "SAMPLE_PAIRED_END_parsed_integration_sites.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                "SAMPLE_PAIRED_END.kraken2.classifiedreads.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                "SAMPLE_PAIRED_END.kraken2.report.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                "kraken_classified_reads_collated.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                "kraken_classified_reads_collated.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                "SAMPLE_PAIRED_END.kraken2.classifiedreads.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                "SAMPLE_PAIRED_END.kraken2.report.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+            ]
+        ],
+        "timestamp": "2026-09-30T15:38:35.363444",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.6"
+        }
+    },
+    "-profile test": {
+        "content": [
+            25,
+            {
+                "BAMTOOLS_STATS": {
+                    "bamtools": "2.5.2"
+                },
+                "BWA_INDEX": {
+                    "bwa": "0.7.19-r1273"
+                },
+                "BWA_MEM": {
+                    "bwa": "0.7.19-r1273",
+                    "samtools": "1.22.1"
+                },
+                "FASTQC_RAW": {
+                    "fastqc": "0.12.1"
+                },
+                "FASTQC_TRIMMED": {
+                    "fastqc": "0.12.1"
+                },
+                "GAWK_BOTH": {
+                    "gawk": "5.3.1"
+                },
+                "GAWK_SINGLE": {
+                    "gawk": "5.3.1"
+                },
+                "KRAKEN2_BOTH": {
+                    "kraken2": "2.1.6",
+                    "pigz": 2.8
+                },
+                "KRAKEN2_SINGLE": {
+                    "kraken2": "2.1.6",
+                    "pigz": 2.8
+                },
+                "KRONA_KTIMPORTTAXONOMY_BOTH": {
+                    "krona": "2.8.1"
+                },
+                "KRONA_KTIMPORTTAXONOMY_SINGLE": {
+                    "krona": "2.8.1"
+                },
+                "PARSE_INTEGRATION_SITES": {
+                    "samtools": 1.24
+                },
+                "QUALIMAP_BAMQC": {
+                    "qualimap": 2.3
+                },
+                "RANALYSIS": {
+                    "bioconductor-ggbio": "1.58.0",
+                    "r-base": "4.5.3"
+                },
+                "SAMTOOLS_BAMTOFASTQ_BOTH": {
+                    "samtools": 1.24
+                },
+                "SAMTOOLS_BAMTOFASTQ_SINGLE": {
+                    "samtools": 1.24
+                },
+                "SAMTOOLS_FLAGSTAT": {
+                    "samtools": 1.24
+                },
+                "SAMTOOLS_IDXSTATS": {
+                    "samtools": 1.24
+                },
+                "SAMTOOLS_SORT": {
+                    "samtools": 1.24
+                },
+                "SAMTOOLS_STATS": {
+                    "samtools": 1.24
+                },
+                "SAMTOOLS_VIEW_BOTH": {
+                    "samtools": 1.24
+                },
+                "SAMTOOLS_VIEW_SINGLE": {
+                    "samtools": 1.24
+                },
+                "TRIMGALORE": {
+                    "trimgalore": "2.3.0"
+                },
+                "UNTAR_KRAKEN2_DB": {
+                    "untar": 1.34
+                },
+                "Workflow": {
+                    "nf-core/hgtseq": "v1.2.0dev"
+                }
+            },
+            [
+                "QC",
+                "QC/bamtools",
+                "QC/bamtools/stats",
+                "QC/bamtools/stats/SAMPLE_PAIRED_END.bam.stats",
+                "QC/fastqc_raw",
+                "QC/fastqc_raw/SAMPLE_PAIRED_END_1_fastqc.html",
+                "QC/fastqc_raw/SAMPLE_PAIRED_END_1_fastqc.zip",
+                "QC/fastqc_raw/SAMPLE_PAIRED_END_2_fastqc.html",
+                "QC/fastqc_raw/SAMPLE_PAIRED_END_2_fastqc.zip",
+                "QC/fastqc_trimmed",
+                "QC/fastqc_trimmed/SAMPLE_PAIRED_END_1_fastqc.html",
+                "QC/fastqc_trimmed/SAMPLE_PAIRED_END_1_fastqc.zip",
+                "QC/fastqc_trimmed/SAMPLE_PAIRED_END_2_fastqc.html",
+                "QC/fastqc_trimmed/SAMPLE_PAIRED_END_2_fastqc.zip",
+                "QC/qualimap",
+                "QC/qualimap/SAMPLE_PAIRED_END",
+                "QC/qualimap/SAMPLE_PAIRED_END/css",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/agogo.css",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/ajax-loader.gif",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/basic.css",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/bgfooter.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/bgtop.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/comment-bright.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/comment-close.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/comment.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/doctools.js",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/down-pressed.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/down.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/file.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/jquery.js",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/minus.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/plus.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/pygments.css",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/qualimap_logo_small.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/report.css",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/searchtools.js",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/underscore.js",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/up-pressed.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/up.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/css/websupport.js",
+                "QC/qualimap/SAMPLE_PAIRED_END/genome_results.txt",
+                "QC/qualimap/SAMPLE_PAIRED_END/images_qualimapReport",
+                "QC/qualimap/SAMPLE_PAIRED_END/images_qualimapReport/genome_coverage_0to50_histogram.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/images_qualimapReport/genome_coverage_across_reference.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/images_qualimapReport/genome_coverage_histogram.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/images_qualimapReport/genome_coverage_quotes.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/images_qualimapReport/genome_gc_content_per_window.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/images_qualimapReport/genome_insert_size_across_reference.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/images_qualimapReport/genome_mapping_quality_across_reference.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/images_qualimapReport/genome_mapping_quality_histogram.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/images_qualimapReport/genome_reads_content_per_read_position.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/images_qualimapReport/genome_uniq_read_starts_histogram.png",
+                "QC/qualimap/SAMPLE_PAIRED_END/qualimapReport.html",
+                "QC/qualimap/SAMPLE_PAIRED_END/raw_data_qualimapReport",
+                "QC/qualimap/SAMPLE_PAIRED_END/raw_data_qualimapReport/coverage_across_reference.txt",
+                "QC/qualimap/SAMPLE_PAIRED_END/raw_data_qualimapReport/coverage_histogram.txt",
+                "QC/qualimap/SAMPLE_PAIRED_END/raw_data_qualimapReport/duplication_rate_histogram.txt",
+                "QC/qualimap/SAMPLE_PAIRED_END/raw_data_qualimapReport/genome_fraction_coverage.txt",
+                "QC/qualimap/SAMPLE_PAIRED_END/raw_data_qualimapReport/insert_size_across_reference.txt",
+                "QC/qualimap/SAMPLE_PAIRED_END/raw_data_qualimapReport/mapped_reads_gc-content_distribution.txt",
+                "QC/qualimap/SAMPLE_PAIRED_END/raw_data_qualimapReport/mapped_reads_nucleotide_content.txt",
+                "QC/qualimap/SAMPLE_PAIRED_END/raw_data_qualimapReport/mapping_quality_across_reference.txt",
+                "QC/qualimap/SAMPLE_PAIRED_END/raw_data_qualimapReport/mapping_quality_histogram.txt",
+                "multiqc",
+                "multiqc/multiqc_data",
+                "multiqc/multiqc_data/bamtools-stats-plot.txt",
+                "multiqc/multiqc_data/fastqc-status-check-heatmap.txt",
+                "multiqc/multiqc_data/fastqc_adapter_content_plot.txt",
+                "multiqc/multiqc_data/fastqc_overrepresented_sequences_plot.txt",
+                "multiqc/multiqc_data/fastqc_per_base_n_content_plot.txt",
+                "multiqc/multiqc_data/fastqc_per_base_sequence_quality_plot.txt",
+                "multiqc/multiqc_data/fastqc_per_sequence_gc_content_plot_Counts.txt",
+                "multiqc/multiqc_data/fastqc_per_sequence_gc_content_plot_Percentages.txt",
+                "multiqc/multiqc_data/fastqc_per_sequence_quality_scores_plot.txt",
+                "multiqc/multiqc_data/fastqc_sequence_counts_plot.txt",
+                "multiqc/multiqc_data/fastqc_sequence_duplication_levels_plot.txt",
+                "multiqc/multiqc_data/fastqc_sequence_length_distribution_plot.txt",
+                "multiqc/multiqc_data/fastqc_top_overrepresented_sequences_table.txt",
+                "multiqc/multiqc_data/llms-full.txt",
+                "multiqc/multiqc_data/multiqc.log",
+                "multiqc/multiqc_data/multiqc.parquet",
+                "multiqc/multiqc_data/multiqc_bamtools_stats.txt",
+                "multiqc/multiqc_data/multiqc_citations.txt",
+                "multiqc/multiqc_data/multiqc_data.json",
+                "multiqc/multiqc_data/multiqc_fastqc.txt",
+                "multiqc/multiqc_data/multiqc_general_stats.txt",
+                "multiqc/multiqc_data/multiqc_qualimap_bamqc_genome_results.txt",
+                "multiqc/multiqc_data/multiqc_samtools_flagstat.txt",
+                "multiqc/multiqc_data/multiqc_samtools_idxstats.txt",
+                "multiqc/multiqc_data/multiqc_samtools_stats.txt",
+                "multiqc/multiqc_data/multiqc_software_versions.txt",
+                "multiqc/multiqc_data/multiqc_sources.txt",
+                "multiqc/multiqc_data/qualimap_coverage_histogram.txt",
+                "multiqc/multiqc_data/qualimap_gc_content.txt",
+                "multiqc/multiqc_data/qualimap_genome_fraction.txt",
+                "multiqc/multiqc_data/samtools-flagstat-pct-table.txt",
+                "multiqc/multiqc_data/samtools-flagstat-table.txt",
+                "multiqc/multiqc_data/samtools-idxstats-mapped-reads-plot_Normalised_Counts.txt",
+                "multiqc/multiqc_data/samtools-idxstats-mapped-reads-plot_Observed_over_Expected_Counts.txt",
+                "multiqc/multiqc_data/samtools-idxstats-mapped-reads-plot_Raw_Counts.txt",
+                "multiqc/multiqc_data/samtools-stats-dp.txt",
+                "multiqc/multiqc_data/samtools_alignment_plot.txt",
+                "multiqc/multiqc_data/samtools_insert_size.txt",
+                "multiqc/multiqc_report.html",
+                "pipeline_info",
+                "pipeline_info/nf_core_hgtseq_software_mqc_versions.yml",
+                "preprocess",
+                "preprocess/alignment",
+                "preprocess/alignment/SAMPLE_PAIRED_END.bam",
+                "preprocess/alignment/SAMPLE_PAIRED_END_sorted.bam",
+                "preprocess/alignment/SAMPLE_PAIRED_END_sorted.bam.bai",
+                "preprocess/converted_reads",
+                "preprocess/converted_reads/both_unmapped",
+                "preprocess/converted_reads/both_unmapped/SAMPLE_PAIRED_END.fastq.gz",
+                "preprocess/converted_reads/parsed_integration_sites",
+                "preprocess/converted_reads/parsed_integration_sites/SAMPLE_PAIRED_END_parsed_integration_sites.txt",
+                "preprocess/converted_reads/single_unmapped",
+                "preprocess/converted_reads/single_unmapped/SAMPLE_PAIRED_END.fastq.gz",
+                "preprocess/extracted_reads",
+                "preprocess/extracted_reads/both_unmapped",
+                "preprocess/extracted_reads/both_unmapped/SAMPLE_PAIRED_END.bam",
+                "preprocess/extracted_reads/single_unmapped",
+                "preprocess/extracted_reads/single_unmapped/SAMPLE_PAIRED_END.bam",
+                "preprocess/trimming",
+                "preprocess/trimming/SAMPLE_PAIRED_END_1.fastq.gz_trimming_report.json",
+                "preprocess/trimming/SAMPLE_PAIRED_END_1.fastq.gz_trimming_report.txt",
+                "preprocess/trimming/SAMPLE_PAIRED_END_1_val_1.fq.gz",
+                "preprocess/trimming/SAMPLE_PAIRED_END_2.fastq.gz_trimming_report.json",
+                "preprocess/trimming/SAMPLE_PAIRED_END_2.fastq.gz_trimming_report.txt",
+                "preprocess/trimming/SAMPLE_PAIRED_END_2_val_2.fq.gz",
+                "results",
+                "results/analysis_report",
+                "results/analysis_report/analysis_report.RData",
+                "results/analysis_report/analysis_report.html",
+                "results/classified",
+                "results/classified/both_unmapped",
+                "results/classified/both_unmapped/SAMPLE_PAIRED_END.kraken2.classifiedreads.txt",
+                "results/classified/both_unmapped/SAMPLE_PAIRED_END.kraken2.report.txt",
+                "results/classified/collate_kraken",
+                "results/classified/collate_kraken/both_unmapped",
+                "results/classified/collate_kraken/both_unmapped/kraken_classified_reads_collated.txt",
+                "results/classified/collate_kraken/single_unmapped",
+                "results/classified/collate_kraken/single_unmapped/kraken_classified_reads_collated.txt",
+                "results/classified/single_unmapped",
+                "results/classified/single_unmapped/SAMPLE_PAIRED_END.kraken2.classifiedreads.txt",
+                "results/classified/single_unmapped/SAMPLE_PAIRED_END.kraken2.report.txt",
+                "results/kronaplots",
+                "results/kronaplots/both_unmapped",
+                "results/kronaplots/both_unmapped/group.html",
+                "results/kronaplots/single_unmapped",
+                "results/kronaplots/single_unmapped/group.html"
+            ],
+            [
+                "SAMPLE_PAIRED_END.bam.stats:md5,536a6407f2607eac9057cfe12a75d7ff",
+                "bamtools-stats-plot.txt:md5,2fb7101f45167ff496fccaa50c06df7c",
+                "fastqc-status-check-heatmap.txt:md5,1df159d163fa5b0695efd8db6896e123",
+                "fastqc_adapter_content_plot.txt:md5,f509990d7e5331afe7480a62626fe958",
+                "fastqc_overrepresented_sequences_plot.txt:md5,fc48ae1ad227e44e300a43801412317f",
+                "fastqc_per_base_n_content_plot.txt:md5,02a7af58b07d77744647d88a3736de7f",
+                "fastqc_per_base_sequence_quality_plot.txt:md5,9eabcf414635667b9283354d5ac96076",
+                "fastqc_per_sequence_gc_content_plot_Counts.txt:md5,6c6e5b4a8970e4eb8be540fdd1ccaf36",
+                "fastqc_per_sequence_gc_content_plot_Percentages.txt:md5,0811da9a4083b7340b9e75efc5cd0927",
+                "fastqc_per_sequence_quality_scores_plot.txt:md5,485e607398402a7b2fc3b007153d6321",
+                "fastqc_sequence_counts_plot.txt:md5,7f41e1e63521107269ba2668022f2114",
+                "fastqc_sequence_duplication_levels_plot.txt:md5,5816793c3758864925c5c749199ac089",
+                "fastqc_sequence_length_distribution_plot.txt:md5,68310af267dc6fd6e147316c93dc979a",
+                "multiqc_bamtools_stats.txt:md5,c3ced68b5273df5497295764fb88796d",
+                "multiqc_citations.txt:md5,d00261b9ed6aedc4a4721d59d6973187",
+                "multiqc_fastqc.txt:md5,cb6c64224299f1d9536e70eca7805cc6",
+                "multiqc_general_stats.txt:md5,33f0d511c8f52730bfc2f85799a0f373",
+                "multiqc_samtools_flagstat.txt:md5,d25af3ca32eab414af2c9804e1cda381",
+                "multiqc_samtools_idxstats.txt:md5,9a6f322cd3f327dc7082e3ebbb6b4d2d",
+                "multiqc_samtools_stats.txt:md5,d4cdf2e9c2375514f9d80e4881e5e8b5",
+                "qualimap_coverage_histogram.txt:md5,aef5d7ad5198ca840c1b76bd03c03960",
+                "qualimap_gc_content.txt:md5,63a500f72f629b07064f22beb4cb9a07",
+                "qualimap_genome_fraction.txt:md5,50f4ba925c033e3c255de2f7a6086448",
+                "samtools-flagstat-pct-table.txt:md5,349b7f97228026ffc614cc61fd6caf64",
+                "samtools-flagstat-table.txt:md5,16aa165e017f5c4422c9ade66ccfba83",
+                "samtools-idxstats-mapped-reads-plot_Normalised_Counts.txt:md5,0f03b7f5b3cc93c1688b9a4cca2ba78e",
+                "samtools-idxstats-mapped-reads-plot_Observed_over_Expected_Counts.txt:md5,0f03b7f5b3cc93c1688b9a4cca2ba78e",
+                "samtools-idxstats-mapped-reads-plot_Raw_Counts.txt:md5,3e594881dfb2c81ff829807408588cb5",
+                "samtools-stats-dp.txt:md5,369ec14c39e0f1b983a3d1408441ab3f",
+                "samtools_alignment_plot.txt:md5,297414e8ca8956036ef3a4646ddeabac",
+                "samtools_insert_size.txt:md5,be75a8c9a16421dbcdb2cbcc5939b213",
+                "SAMPLE_PAIRED_END_parsed_integration_sites.txt:md5,02c6c2a7941551266758bfe73f92b3c0",
+                "SAMPLE_PAIRED_END.kraken2.classifiedreads.txt:md5,e31a8fd43bcc434c7aeb51134c2aaa73",
+                "SAMPLE_PAIRED_END.kraken2.report.txt:md5,2a526d28f81f9c2ec777eec2c56e433d",
+                "kraken_classified_reads_collated.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                "kraken_classified_reads_collated.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                "SAMPLE_PAIRED_END.kraken2.classifiedreads.txt:md5,6e62ce3cb633ac50762676a10feaf2ca",
+                "SAMPLE_PAIRED_END.kraken2.report.txt:md5,5ce07b505e86937e8eba47b00795eedd"
+            ]
+        ],
+        "timestamp": "2026-09-30T15:37:46.165924",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.6"
+        }
+    }
+}
