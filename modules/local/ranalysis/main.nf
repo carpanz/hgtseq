@@ -4,8 +4,8 @@ process RANALYSIS {
 
     conda "${moduleDir}/environment.yml"
     container "${workflow.containerEngine in ['singularity', 'apptainer'] && !task.ext.singularity_pull_docker_container
-        ? 'library://lescailab/hgtseq/r-ggbio-reporting:sha256.eb829b05cf12e8d827813a6afb6e38592aac6568f685a6519f5ed7dd20125cb3'
-        : 'ghcr.io/lescailab/r-ggbio-reporting:1.0.0'}"
+        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/83/8309ae0799cf8625166500cc634dae1212101f93583ebc0a49898b9fcfc6c256/data'
+        : 'community.wave.seqera.io/library/bioconductor-biovizbase_bioconductor-genomeinfodb_bioconductor-genomicranges_bioconductor-ggbio_pruned:baa766c046284ca8'}"
 
     input:
     path classified_reads_single, stageAs: 'classified_single/*'

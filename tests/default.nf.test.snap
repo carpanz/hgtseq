@@ -46,8 +46,8 @@
                     "qualimap": 2.3
                 },
                 "RANALYSIS": {
-                    "bioconductor-ggbio": "1.44.0",
-                    "r-base": "4.2.0"
+                    "bioconductor-ggbio": "1.58.0",
+                    "r-base": "4.5.3"
                 },
                 "SAMTOOLS_BAMTOFASTQ_BOTH": {
                     "samtools": 1.24
@@ -224,7 +224,7 @@
                 "SAMPLE_PAIRED_END.kraken2.report.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
             ]
         ],
-        "timestamp": "2026-09-30T14:58:16.734024",
+        "timestamp": "2026-09-30T15:38:35.363444",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.6"
@@ -277,8 +277,8 @@
                     "qualimap": 2.3
                 },
                 "RANALYSIS": {
-                    "bioconductor-ggbio": "1.44.0",
-                    "r-base": "4.2.0"
+                    "bioconductor-ggbio": "1.58.0",
+                    "r-base": "4.5.3"
                 },
                 "SAMTOOLS_BAMTOFASTQ_BOTH": {
                     "samtools": 1.24
@@ -508,7 +508,7 @@
                 "SAMPLE_PAIRED_END.kraken2.report.txt:md5,5ce07b505e86937e8eba47b00795eedd"
             ]
         ],
-        "timestamp": "2026-09-30T14:57:15.616907",
+        "timestamp": "2026-09-30T15:37:46.165924",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.6"
