@@ -34,7 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `SORTBAM` was called with a different number of inputs for FastQ and BAM samples
 - The FastQ samplesheet parsing was broken for BAM input
 - The local modules do not modify the `meta` map in place anymore
-- `test_full` uses `resourceLimits` instead of the removed `max_cpus`/`max_memory`/`max_time` parameters
+- `test_full` does not set the removed `max_cpus`/`max_memory`/`max_time` parameters anymore, and runs at full size on AWS as in the nf-core template
 
 ### `Dependencies`
 
