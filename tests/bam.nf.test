@@ -4,10 +4,9 @@ nextflow_pipeline {
     script "../main.nf"
     tag "pipeline"
     tag "bam"
+    profile "test_bam"
 
     test("-profile test_bam") {
-
-        profile "test_bam"
 
         when {
             params {
@@ -37,8 +36,6 @@ nextflow_pipeline {
     }
 
     test("-profile test_bam - stub") {
-
-        profile "test_bam"
 
         options "-stub"
 

@@ -13,6 +13,6 @@ pipeline_info/*.{html,json,txt,yml}
 QC/fastqc_{raw,trimmed}/*_fastqc.{html,zip}
 QC/qualimap/**
 preprocess/trimming/*_trimming_report.{txt,json}
-preprocess/**/*.{bam,fq.gz,fastq.gz}
+preprocess/**/*.{bam,bai,fq.gz,fastq.gz}
 results/kronaplots/**/*.html
 results/analysis_report/*
