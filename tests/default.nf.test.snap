@@ -14,10 +14,10 @@
                     "samtools": "1.22.1"
                 },
                 "FASTQC_RAW": {
-                    "fastqc": "0.12.1"
+                    "fastqc": "0.13.0"
                 },
                 "FASTQC_TRIMMED": {
-                    "fastqc": "0.12.1"
+                    "fastqc": "0.13.0"
                 },
                 "GAWK_BOTH": {
                     "gawk": "5.3.1"
@@ -40,7 +40,7 @@
                     "krona": "2.8.1"
                 },
                 "PARSE_INTEGRATION_SITES": {
-                    "samtools": 1.24
+                    "samtools": 1.25
                 },
                 "QUALIMAP_BAMQC": {
                     "qualimap": 2.3
@@ -50,28 +50,28 @@
                     "r-base": "4.5.3"
                 },
                 "SAMTOOLS_BAMTOFASTQ_BOTH": {
-                    "samtools": 1.24
+                    "samtools": 1.25
                 },
                 "SAMTOOLS_BAMTOFASTQ_SINGLE": {
-                    "samtools": 1.24
+                    "samtools": 1.25
                 },
                 "SAMTOOLS_FLAGSTAT": {
-                    "samtools": 1.24
+                    "samtools": 1.25
                 },
                 "SAMTOOLS_IDXSTATS": {
-                    "samtools": 1.24
+                    "samtools": 1.25
                 },
                 "SAMTOOLS_SORT": {
-                    "samtools": 1.24
+                    "samtools": 1.25
                 },
                 "SAMTOOLS_STATS": {
-                    "samtools": 1.24
+                    "samtools": 1.25
                 },
                 "SAMTOOLS_VIEW_BOTH": {
-                    "samtools": 1.24
+                    "samtools": 1.25
                 },
                 "SAMTOOLS_VIEW_SINGLE": {
-                    "samtools": 1.24
+                    "samtools": 1.25
                 },
                 "TRIMGALORE": {
                     "trimgalore": "2.3.0"
@@ -224,10 +224,10 @@
                 "SAMPLE_PAIRED_END.kraken2.report.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
             ]
         ],
-        "timestamp": "2026-09-30T15:38:35.363444",
+        "timestamp": "2026-10-29T11:04:10.622075",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.6"
+            "nextflow": "26.10.4"
         }
     },
     "-profile test": {
@@ -245,10 +245,10 @@
                     "samtools": "1.22.1"
                 },
                 "FASTQC_RAW": {
-                    "fastqc": "0.12.1"
+                    "fastqc": "0.13.0"
                 },
                 "FASTQC_TRIMMED": {
-                    "fastqc": "0.12.1"
+                    "fastqc": "0.13.0"
                 },
                 "GAWK_BOTH": {
                     "gawk": "5.3.1"
@@ -271,7 +271,7 @@
                     "krona": "2.8.1"
                 },
                 "PARSE_INTEGRATION_SITES": {
-                    "samtools": 1.24
+                    "samtools": 1.25
                 },
                 "QUALIMAP_BAMQC": {
                     "qualimap": 2.3
@@ -281,28 +281,28 @@
                     "r-base": "4.5.3"
                 },
                 "SAMTOOLS_BAMTOFASTQ_BOTH": {
-                    "samtools": 1.24
+                    "samtools": 1.25
                 },
                 "SAMTOOLS_BAMTOFASTQ_SINGLE": {
-                    "samtools": 1.24
+                    "samtools": 1.25
                 },
                 "SAMTOOLS_FLAGSTAT": {
-                    "samtools": 1.24
+                    "samtools": 1.25
                 },
                 "SAMTOOLS_IDXSTATS": {
-                    "samtools": 1.24
+                    "samtools": 1.25
                 },
                 "SAMTOOLS_SORT": {
-                    "samtools": 1.24
+                    "samtools": 1.25
                 },
                 "SAMTOOLS_STATS": {
-                    "samtools": 1.24
+                    "samtools": 1.25
                 },
                 "SAMTOOLS_VIEW_BOTH": {
-                    "samtools": 1.24
+                    "samtools": 1.25
                 },
                 "SAMTOOLS_VIEW_SINGLE": {
-                    "samtools": 1.24
+                    "samtools": 1.25
                 },
                 "TRIMGALORE": {
                     "trimgalore": "2.3.0"
@@ -472,7 +472,7 @@
                 "bamtools-stats-plot.txt:md5,2fb7101f45167ff496fccaa50c06df7c",
                 "fastqc-status-check-heatmap.txt:md5,1df159d163fa5b0695efd8db6896e123",
                 "fastqc_adapter_content_plot.txt:md5,f509990d7e5331afe7480a62626fe958",
-                "fastqc_overrepresented_sequences_plot.txt:md5,fc48ae1ad227e44e300a43801412317f",
+                "fastqc_overrepresented_sequences_plot.txt:md5,eb27f309998a2f290353a3b1491c17de",
                 "fastqc_per_base_n_content_plot.txt:md5,02a7af58b07d77744647d88a3736de7f",
                 "fastqc_per_base_sequence_quality_plot.txt:md5,9eabcf414635667b9283354d5ac96076",
                 "fastqc_per_sequence_gc_content_plot_Counts.txt:md5,6c6e5b4a8970e4eb8be540fdd1ccaf36",
@@ -483,7 +483,7 @@
                 "fastqc_sequence_length_distribution_plot.txt:md5,68310af267dc6fd6e147316c93dc979a",
                 "multiqc_bamtools_stats.txt:md5,c3ced68b5273df5497295764fb88796d",
                 "multiqc_citations.txt:md5,d00261b9ed6aedc4a4721d59d6973187",
-                "multiqc_fastqc.txt:md5,cb6c64224299f1d9536e70eca7805cc6",
+                "multiqc_fastqc.txt:md5,c8fd52b3603c7776740775e4ea7cc68b",
                 "multiqc_general_stats.txt:md5,33f0d511c8f52730bfc2f85799a0f373",
                 "multiqc_samtools_flagstat.txt:md5,d25af3ca32eab414af2c9804e1cda381",
                 "multiqc_samtools_idxstats.txt:md5,9a6f322cd3f327dc7082e3ebbb6b4d2d",
@@ -508,10 +508,10 @@
                 "SAMPLE_PAIRED_END.kraken2.report.txt:md5,5ce07b505e86937e8eba47b00795eedd"
             ]
         ],
-        "timestamp": "2026-09-30T15:37:46.165924",
+        "timestamp": "2026-10-29T11:03:20.540385",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.6"
+            "nextflow": "26.10.4"
         }
     }
 }

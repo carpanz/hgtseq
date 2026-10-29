@@ -22,9 +22,6 @@ process RANALYSIS {
     tuple val("${task.process}"), val('r-base'), eval("Rscript -e 'cat(as.character(getRversion()))'"), emit: versions_r, topic: versions
     tuple val("${task.process}"), val('bioconductor-ggbio'), eval("Rscript -e \"cat(as.character(packageVersion('ggbio')))\""), emit: versions_ggbio, topic: versions
 
-    when:
-    task.ext.when == null || task.ext.when
-
     script:
     def samplestring = sampleids.join(',')
     """

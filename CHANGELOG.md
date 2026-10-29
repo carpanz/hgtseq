@@ -15,9 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Changed`
 
-- Sync `TEMPLATE` with nf-core/tools 4.1.0
+- Sync `TEMPLATE` with nf-core/tools 4.2.1
 - The pipeline code is written in the Nextflow [strict syntax](https://www.nextflow.io/docs/latest/strict-syntax.html), and requires Nextflow `>=25.10.4`
 - The software versions are collected through the `versions` topic channel
+- Parameter validation uses nf-schema 2.7.3
+- The local modules do not have the `when` section anymore, deprecated in Nextflow 26.10
 - Parameters are only accessed in `main.nf`, and passed explicitly to the workflows and subworkflows
 - The local subworkflows have been reorganised: `PREPARE_READS` and `READS_QC` are merged in `FASTQ_QC_TRIM_ALIGN`, while `SORTBAM` is replaced by the `samtools/sort` module, which now also indexes the alignments
 - The local modules `SAMTOOLS_VIEW_SINGLE` and `GAWK` are replaced by the nf-core modules `samtools/view` (with the equivalent flag filter `-f 5 -F 264`) and `gawk`
@@ -43,7 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 | `bamtools`    | 2.5.1       | 2.5.2       |
 | `bwa`         | 0.7.17      | 0.7.19      |
 | `bwa-mem2`    | 2.2.1       | 2.3         |
-| `fastqc`      | 0.11.9      | 0.12.1      |
+| `fastqc`      | 0.11.9      | 0.13.0      |
 | `gawk`        | 5.1.0       | 5.3.1       |
 | `kraken2`     | 2.1.2       | 2.1.6       |
 | `krona`       | 2.8         | 2.8.1       |
@@ -51,7 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 | `qualimap`    | 2.2.2d      | 2.3         |
 | `r-base`      | 4.2.0       | 4.5.3       |
 | `ggbio`       | 1.44.0      | 1.58.0      |
-| `samtools`    | 1.17        | 1.24        |
+| `samtools`    | 1.17        | 1.25        |
 | `trim-galore` | 0.6.7       | 2.3.0       |
 
 ### `Deprecated`
