@@ -16,9 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### `Changed`
 
 - Sync `TEMPLATE` with nf-core/tools 4.2.1
-- The pipeline code is written in the Nextflow [strict syntax](https://www.nextflow.io/docs/latest/strict-syntax.html), and requires Nextflow `>=25.10.4`
+- The pipeline code is written in the Nextflow [strict syntax](https://www.nextflow.io/docs/latest/strict-syntax.html), and requires Nextflow `>=26.04.0`
 - The software versions are collected through the `versions` topic channel
-- Parameter validation uses nf-schema 2.7.3
+- Parameter validation uses nf-schema 3.0.0
 - The local modules do not have the `when` section anymore, deprecated in Nextflow 26.10
 - Parameters are only accessed in `main.nf`, and passed explicitly to the workflows and subworkflows
 - The local subworkflows have been reorganised: `PREPARE_READS` and `READS_QC` are merged in `FASTQ_QC_TRIM_ALIGN`, while `SORTBAM` is replaced by the `samtools/sort` module, which now also indexes the alignments
